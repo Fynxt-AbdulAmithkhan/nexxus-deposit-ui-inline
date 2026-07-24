@@ -2,6 +2,7 @@ import { Box, Button, Flex, Heading, Text, VStack } from '@chakra-ui/react';
 import { AlertTriangle, ShieldCheck } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { CUSTOMER_PROFILE, NEXXUS_METHOD, REQUEST_CONTEXT, WALLETS } from './config';
+import { CountrySelector } from './components/country-selector';
 import { DepositForm } from './components/deposit-form';
 import { IframePayment } from './components/iframe-payment';
 import { PspList } from './components/psp-list';
@@ -53,6 +54,7 @@ export function DepositPage() {
     const [walletId, setWalletId] = useState<string | null>(null);
     const [amount, setAmount] = useState('');
     const [currency, setCurrency] = useState('');
+    const [country, setCountry] = useState<string>(REQUEST_CONTEXT.country);
 
     const [requestId, setRequestId] = useState<string | null>(null);
     const [psps, setPsps] = useState<PspInfo[]>([]);
@@ -101,7 +103,7 @@ export function DepositPage() {
             amount: convertedAmount,
             currency,
             actionId: REQUEST_CONTEXT.actionId,
-            country: REQUEST_CONTEXT.country,
+            country,
             customerId: REQUEST_CONTEXT.customerId,
             customerTag: REQUEST_CONTEXT.customerTag,
             customerAccountType: REQUEST_CONTEXT.customerAccountType,
@@ -124,7 +126,7 @@ export function DepositPage() {
 
         return () => clearTimeout(timer);
         // fetchPsp.mutate is stable; re-run only when the inputs change.
-    }, [walletId, currency, convertedAmount]);
+    }, [walletId, currency, convertedAmount, country]);
 
     // Only the Submit button triggers the transaction API.
     async function handleSubmit() {
@@ -187,7 +189,17 @@ export function DepositPage() {
     const loadingPsps = fetchPsp.isPending || debouncePending;
 
     return (
-        <Flex minH='100vh' direction='column' align='center' py={{ base: 6, md: 12 }} px={4}>
+        <Box position='relative' minH='100vh'>
+            <Box
+                position='absolute'
+                top={{ base: 4, md: 6 }}
+                right={{ base: 4, md: 6 }}
+                zIndex={1}
+            >
+                <CountrySelector value={country} onChange={setCountry} />
+            </Box>
+
+            <Flex minH='100vh' direction='column' align='center' py={{ base: 6, md: 12 }} px={4}>
             <Box w='full' maxW='560px'>
                 <Heading size='xl' mb={1}>
                     Deposit
@@ -275,6 +287,7 @@ export function DepositPage() {
                 url={sessionUrl ?? ''}
                 onClose={() => setSessionUrl(null)}
             />
-        </Flex>
+            </Flex>
+        </Box>
     );
 }

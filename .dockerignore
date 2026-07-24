@@ -1,0 +1,14 @@
+node_modules
+dist
+.git
+.github
+# never ship the local secret; the build uses .env.production (no secrets)
+.env
+.env.local
+.env.development
+.env.development.local
+.env.production.local
+*.log
+Dockerfile
+.dockerignore
+docs
