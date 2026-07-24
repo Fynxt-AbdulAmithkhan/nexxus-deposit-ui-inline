@@ -10,7 +10,7 @@ import type { Wallet } from './types';
 export const REQUEST_CONTEXT = {
     /** Flow action id for the deposit (from the brand's flow config). */
     actionId: 'fat_3v1UUaAwNVQunEoJTZ8oz9pYLW',
-    country: 'US',
+    country: 'NG',
     customerId: 'cust_001',
     customerTag: 'VIP',
     customerAccountType: 'INDIVIDUAL',

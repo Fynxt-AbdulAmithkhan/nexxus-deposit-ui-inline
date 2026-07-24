@@ -80,7 +80,9 @@ export function DepositPage() {
         return round2(convert(amountNum, wallet.currency, currency));
     }, [wallet, currency, amountNum]);
 
-    const authConfigured = Boolean(import.meta.env.VITE_SECRET_TOKEN);
+    const authConfigured =
+        Boolean(import.meta.env.VITE_SECRET_TOKEN) ||
+        import.meta.env.VITE_AUTH_VIA_PROXY === 'true';
     const canFetch = Boolean(wallet && currency && amountNum > 0 && convertedAmount > 0);
 
     // Auto-fetch PSPs whenever the wallet, currency, or (converted) amount changes.
