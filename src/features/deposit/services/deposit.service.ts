@@ -1,4 +1,5 @@
 import { apiClient, API_ENDPOINTS } from '@/api';
+import { DEMO, demoCreateTransaction, demoCurrencies, demoFetchPsp } from '../demo';
 import type {
     CreateTransactionRequest,
     CreateTransactionResponse,
@@ -28,12 +29,14 @@ function normaliseCurrencies(raw: unknown): string[] {
 export const DepositService = {
     /** GET /psps/currencies -> supported currencies for the brand + environment. */
     async getSupportedCurrencies(): Promise<string[]> {
+        if (DEMO) return demoCurrencies();
         const res = await apiClient.get<unknown>(API_ENDPOINTS.psp.currencies());
         return normaliseCurrencies(res.data);
     },
 
     /** POST /requests/fetch-psp -> { requestId, psps[] }. */
     async fetchPsp(body: FetchPspRequest): Promise<FetchPspResponse> {
+        if (DEMO) return demoFetchPsp(body);
         const res = await apiClient.post<FetchPspResponse, FetchPspRequest>(
             API_ENDPOINTS.requests.fetchPsp(),
             body,
@@ -43,6 +46,7 @@ export const DepositService = {
 
     /** POST /transactions -> { txnId, sessionUrl }. */
     async createTransaction(body: CreateTransactionRequest): Promise<CreateTransactionResponse> {
+        if (DEMO) return demoCreateTransaction();
         const res = await apiClient.post<CreateTransactionResponse, CreateTransactionRequest>(
             API_ENDPOINTS.transactions.create(),
             body,

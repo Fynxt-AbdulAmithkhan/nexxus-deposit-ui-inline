@@ -9,6 +9,7 @@ export default defineConfig(({ mode }) => {
     const apiTarget = env.VITE_API_TARGET || 'https://api.nexxus.fynxt.io';
 
     return {
+        base: env.VITE_BASE || '/',
         plugins: [react()],
         resolve: {
             alias: {

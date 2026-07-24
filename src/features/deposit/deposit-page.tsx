@@ -12,6 +12,7 @@ import { useCurrencies } from './hooks/use-currencies';
 import { useFetchPsp } from './hooks/use-fetch-psp';
 import type { CreateTransactionRequest, FetchPspRequest, PspInfo } from './types';
 import { convert, getRate } from './utils/conversion';
+import { DEMO } from './demo';
 
 /** Debounce (ms) before an amount/currency change triggers a fetch-psp call. */
 const AUTO_FETCH_DEBOUNCE = 500;
@@ -99,7 +100,8 @@ export function DepositPage() {
 
     const authConfigured =
         Boolean(import.meta.env.VITE_SECRET_TOKEN) ||
-        import.meta.env.VITE_AUTH_VIA_PROXY === 'true';
+        import.meta.env.VITE_AUTH_VIA_PROXY === 'true' ||
+        DEMO;
     const canFetch = Boolean(wallet && currency && amountNum > 0 && convertedAmount > 0);
 
     // Auto-fetch PSPs whenever the wallet, currency, or (converted) amount changes.
@@ -223,6 +225,27 @@ export function DepositPage() {
                     Fund your account with {NEXXUS_METHOD.name}. Pick a wallet and amount — providers update
                     as you change the currency.
                 </Text>
+
+                {DEMO && (
+                    <Flex
+                        align='flex-start'
+                        gap={2}
+                        mb={6}
+                        p={3}
+                        borderWidth='1px'
+                        borderColor='brand.emphasized'
+                        bg='brand.subtle'
+                        borderRadius='md'
+                    >
+                        <Box color='brand.fg' mt='2px'>
+                            <ShieldCheck size={16} />
+                        </Box>
+                        <Text fontSize='xs' color='brand.fg'>
+                            Preview with <b>sample data</b> — not connected to the live API. The full working
+                            flow (real providers + payment) runs from the deployable container build.
+                        </Text>
+                    </Flex>
+                )}
 
                 {!authConfigured && (
                     <Flex
