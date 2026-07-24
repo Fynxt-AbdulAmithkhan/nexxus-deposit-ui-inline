@@ -68,13 +68,28 @@ export function DepositPage() {
     const fetchPsp = useFetchPsp();
     const createTransaction = useCreateTransaction();
 
-    // Keep the selection valid, but never auto-pick: the dropdown defaults to the
-    // "Select currency" placeholder and resets to it if the choice becomes invalid.
+    // Keep the selection valid. Preserve an already-valid choice; otherwise, if the
+    // wallet's own currency is among the supported options, auto-select it. Fall back
+    // to the "Select currency" placeholder when neither applies.
     useEffect(() => {
         if (!wallet) return;
         const options = currencies.length > 0 ? currencies : wallet.supportedCurrencies;
-        setCurrency((prev) => (prev && options.includes(prev) ? prev : ''));
+        setCurrency((prev) => {
+            if (prev && options.includes(prev)) return prev;
+            if (options.includes(wallet.currency)) return wallet.currency;
+            return '';
+        });
     }, [wallet, currencies]);
+
+    // On wallet change, if the newly-picked wallet's currency is supported, select it
+    // immediately (overriding any previous choice) so the dropdown mirrors the wallet.
+    function handleWalletChange(id: string) {
+        setWalletId(id);
+        const nextWallet = WALLETS.find((w) => w.id === id);
+        if (!nextWallet) return;
+        const options = currencies.length > 0 ? currencies : nextWallet.supportedCurrencies;
+        if (options.includes(nextWallet.currency)) setCurrency(nextWallet.currency);
+    }
 
     const amountNum = Number(amount);
     const convertedAmount = useMemo(() => {
@@ -232,7 +247,7 @@ export function DepositPage() {
 
                 <VStack align='stretch' gap={5}>
                     <Card>
-                        <WalletSelector wallets={WALLETS} value={walletId} onChange={setWalletId} />
+                        <WalletSelector wallets={WALLETS} value={walletId} onChange={handleWalletChange} />
                     </Card>
 
                     {wallet && (
