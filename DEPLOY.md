@@ -1,58 +1,51 @@
-# Deploy
+# Deploy / run
 
-The app must run on a **server** so the nexxus API can be reached through a
-server-side proxy that injects the secret token (the token never reaches the
-browser, and there's no CORS since the browser only talks to its own origin).
+The app needs a **server** so the nexxus API is reached through a server-side proxy
+that injects the secret token (token never hits the browser; no CORS since the
+browser is same-origin). The token is always a **server-side** var,
+**`NEXXUS_SECRET_TOKEN`** (never `VITE_`-prefixed).
 
-Two supported ways to run that server:
+## A. Run live in GitHub — Codespaces (no external service)
 
-- **Self-host a container** (recommended for org infra) — `Dockerfile` + `server.js`.
-- **Vercel** (serverless) — `vercel.json` + `api/nexxus/[...path].js`.
+A Codespace is a GitHub cloud VM, so it runs the real app + the Vite dev proxy and
+exposes a public URL — with the **live API working**.
 
-In every case the secret is provided as a **server-side** env var
-**`NEXXUS_SECRET_TOKEN`** (never a `VITE_`-prefixed var, which would be bundled
-into the browser).
+1. Add the secret once: repo **Settings → Secrets and variables → Codespaces →
+   New secret** → `NEXXUS_SECRET_TOKEN` = your token.
+2. **Open in Codespaces:** `https://codespaces.new/Fynxt-AbdulAmithkhan/nexxus-deposit-ui-inline`
+   (or the green **Code → Codespaces → Create** button). The devcontainer installs
+   deps and runs `pnpm dev` automatically.
+3. When port **5176** forwards, open the **Ports** tab and set its visibility to
+   **Public**, then copy the URL (`https://<name>-5176.app.github.dev`) — that's the
+   live, shareable URL.
 
----
+> Note: a Codespace is a running environment, not a 24/7 host — it suspends when
+> idle and resumes on access. Great for a review session; for an always-on URL use
+> the container below.
 
-## A. Self-host with Docker (org infra — no third-party service)
+## B. Self-host the container (always-on, org infra)
 
-`server.js` (Express) serves the built SPA and proxies `/nexxus/*` to the brand
-service with the token injected server-side.
-
-### Build & run locally
-
-```bash
-docker build -t nexxus-deposit-ui .
-docker run -p 8080:8080 \
-  -e NEXXUS_SECRET_TOKEN=<your token> \
-  -e NEXXUS_API_TARGET=https://api.nexxus.fynxt.io \
-  nexxus-deposit-ui
-# open http://localhost:8080
-```
-
-### CI image (GitHub Container Registry)
-
-`.github/workflows/docker-image.yml` builds the image and pushes it to
-**`ghcr.io/<owner>/nexxus-deposit-ui-inline`** on every push to `main`
-(uses the built-in `GITHUB_TOKEN` — no extra secrets to configure). Your platform
-team can then pull and run it on Azure / Kubernetes / any container host:
+`Dockerfile` + `server.js` (zero-dependency Node server) serve the SPA and proxy
+`/nexxus/*` with the token injected server-side.
 
 ```bash
 docker run -p 8080:8080 -e NEXXUS_SECRET_TOKEN=<token> \
   ghcr.io/fynxt-abdulamithkhan/nexxus-deposit-ui-inline:latest
 ```
 
-Set `NEXXUS_SECRET_TOKEN` (and optionally `NEXXUS_API_TARGET`) as a secret/env in
-your deployment platform. Expose port `8080` behind your ingress.
+The image is rebuilt + published to GHCR on every push
+(`.github/workflows/docker-image.yml`). Run it on Azure/K8s/any container host.
 
----
+## C. Vercel (alternative external host)
 
-## B. Vercel (alternative)
+Import the repo, set `NEXXUS_SECRET_TOKEN`, deploy. `api/nexxus/[...path].js` +
+`vercel.json` do the same proxy.
 
-Import the repo at vercel.com, add env var `NEXXUS_SECRET_TOKEN`, deploy. The
-`api/nexxus/[...path].js` serverless function performs the same proxy. See
-`vercel.json`.
+## D. GitHub Pages — UI preview only (no live API)
+
+`.github/workflows/pages.yml` deploys a static build with `VITE_DEMO=true`
+(sample data) to `https://fynxt-abdulamithkhan.github.io/nexxus-deposit-ui-inline/`.
+Static hosting can't reach the API, so this is a UI/design preview only.
 
 ---
 
@@ -60,5 +53,6 @@ Import the repo at vercel.com, add env var `NEXXUS_SECRET_TOKEN`, deploy. The
 
 | Env | Who sends `x-secret-token` |
 |-----|----------------------------|
-| Local dev (`pnpm dev`) | the client, from `.env` → `VITE_SECRET_TOKEN` (via the Vite dev proxy) |
-| Container / Vercel (production) | the server-side proxy, from `NEXXUS_SECRET_TOKEN` (client sends nothing) |
+| Local dev / Codespaces (`pnpm dev`) | the dev proxy, from `NEXXUS_SECRET_TOKEN` (server-side) |
+| Container / Vercel | the server-side proxy, from `NEXXUS_SECRET_TOKEN` |
+| GitHub Pages | n/a — demo/sample data, no live calls |

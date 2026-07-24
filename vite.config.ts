@@ -7,6 +7,9 @@ export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, process.cwd(), '');
     // Hosted brand-service the dev proxy forwards to (server-side -> no browser CORS).
     const apiTarget = env.VITE_API_TARGET || 'https://api.nexxus.fynxt.io';
+    // Server-side token for the dev proxy (Codespaces secret / local env). Injected
+    // by the proxy so it never ships to the browser.
+    const secretToken = process.env.NEXXUS_SECRET_TOKEN || env.NEXXUS_SECRET_TOKEN || '';
 
     return {
         base: env.VITE_BASE || '/',
@@ -33,6 +36,8 @@ export default defineConfig(({ mode }) => {
                                 (h) => proxyReq.removeHeader(h),
                             );
                             proxyReq.setHeader('user-agent', 'nexxus-deposit-ui/dev-proxy');
+                            // Inject the token server-side when provided (keeps it off the client).
+                            if (secretToken) proxyReq.setHeader('x-secret-token', secretToken);
                         });
                     },
                 },

@@ -1,0 +1,18 @@
+{
+    "name": "nexxus-deposit-ui",
+    "image": "mcr.microsoft.com/devcontainers/typescript-node:20",
+    "onCreateCommand": "corepack enable",
+    "postCreateCommand": "pnpm install",
+    "postAttachCommand": "pnpm dev --host",
+    "forwardPorts": [5176],
+    "portsAttributes": {
+        "5176": {
+            "label": "Nexxus Deposit UI (live)",
+            "onAutoForward": "openPreview",
+            "visibility": "public"
+        }
+    },
+    "containerEnv": {
+        "VITE_AUTH_VIA_PROXY": "true"
+    }
+}
