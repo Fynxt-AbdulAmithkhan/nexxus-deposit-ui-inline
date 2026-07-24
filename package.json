@@ -1,0 +1,33 @@
+{
+  "name": "nexxus-deposit-ui-inline",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Inline variant of the Nexxus deposit flow: wallet + amount + currency on-page (no drawer, no method card); changing the currency auto-calls fetch-psp and renders PSP cards. Consumes the nexxus brand-service APIs.",
+  "packageManager": "pnpm@10.13.1",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@chakra-ui/react": "^3.28.0",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@tanstack/react-query": "^5.90.6",
+    "axios": "^1.13.2",
+    "framer-motion": "^12.23.24",
+    "lucide-react": "^0.553.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.3.5",
+    "@vitejs/plugin-react": "^4.3.4",
+    "typescript": "~5.6.3",
+    "vite": "^6.0.3"
+  }
+}
