@@ -1,4 +1,4 @@
 {
     "$schema": "https://openapi.vercel.sh/vercel.json",
-    "rewrites": [{ "source": "/nexxus/:path*", "destination": "/api/:path*" }]
+    "rewrites": [{ "source": "/nexxus/:path*", "destination": "/api/proxy?path=:path*" }]
 }
