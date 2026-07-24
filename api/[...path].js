@@ -1,16 +1,11 @@
-// Vercel serverless proxy.
+// Vercel serverless proxy (top-level catch-all under /api).
 //
-// The browser calls same-origin `/nexxus/v1/*`; vercel.json rewrites that to this
-// function, which forwards to the nexxus brand service and injects the
-// `x-secret-token` header from a SERVER-side env var. The secret is therefore never
-// shipped to the browser (unlike a VITE_ client var), and there is no CORS because
-// the browser only ever talks to its own origin.
-//
-// Required Vercel env var (server-side, NOT VITE_ prefixed): NEXXUS_SECRET_TOKEN
-// Optional: NEXXUS_API_TARGET (defaults to https://api.nexxus.fynxt.io)
+// vercel.json rewrites /nexxus/* -> /api/* ; this forwards to the nexxus brand
+// service and injects x-secret-token from the server env NEXXUS_SECRET_TOKEN, so the
+// secret never reaches the browser and there is no CORS (browser is same-origin).
 
 export default async function handler(req, res) {
-    const target = process.env.NEXXUS_API_TARGET || 'https://api.nexxus.fynxt.io';
+    const target = (process.env.NEXXUS_API_TARGET || 'https://api.nexxus.fynxt.io').replace(/\/$/, '');
     const token = process.env.NEXXUS_SECRET_TOKEN || '';
 
     const segments = Array.isArray(req.query.path)
@@ -39,8 +34,8 @@ export default async function handler(req, res) {
         const upstreamRes = await fetch(upstream, init);
         const body = await upstreamRes.text();
         res.status(upstreamRes.status);
-        const contentType = upstreamRes.headers.get('content-type');
-        if (contentType) res.setHeader('content-type', contentType);
+        const ct = upstreamRes.headers.get('content-type');
+        if (ct) res.setHeader('content-type', ct);
         res.send(body);
     } catch (err) {
         res.status(502).json({ message: 'Proxy error', error: String(err) });
