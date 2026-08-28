@@ -178,6 +178,17 @@ export function LimitsDebugPage() {
                     </HStack>
                 )}
 
+                {!(query.isFetching || query.isError) && limits.length === 0 && (
+                    <Box bg='blue.50' borderRadius='md' p={3}>
+                        <Text color='blue.800' fontSize='sm'>
+                            The API returned an empty list: this brand and environment have no
+                            transaction limits configured. That is a valid response, not a failure —
+                            check the brand/environment ids, or that you are pointed at the
+                            environment the limits actually live in.
+                        </Text>
+                    </Box>
+                )}
+
                 {missingNames > 0 && (
                     <Box bg='orange.50' borderRadius='md' p={3}>
                         <Text color='orange.800' fontSize='sm'>
