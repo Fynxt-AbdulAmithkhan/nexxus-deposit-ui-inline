@@ -82,6 +82,16 @@ export function TransactionLimitsHost() {
                     </HStack>
                 </VStack>
 
+                {!domain.trim() && (brandId.trim() || environmentId.trim()) && (
+                    <Box bg='orange.50' borderRadius='md' p={3}>
+                        <Text color='orange.800' fontSize='sm'>
+                            Brand and environment are being ignored. With no domain the call goes
+                            through the proxy, which forwards only the token and resolves brand and
+                            environment from it. The results below are the token's own brand.
+                        </Text>
+                    </Box>
+                )}
+
                 <Suspense fallback={<Text fontSize='sm'>Loading component...</Text>}>
                     <TransactionLimitsComponent
                         brandId={brandId || undefined}

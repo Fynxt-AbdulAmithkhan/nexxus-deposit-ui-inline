@@ -130,6 +130,17 @@ export function LimitsDebugPage() {
                     </Button>
                 </HStack>
 
+                {(brandId.trim() || environmentId.trim()) && (
+                    <Box bg='orange.50' borderRadius='md' p={3}>
+                        <Text color='orange.800' fontSize='sm'>
+                            These are ignored on a deployed build: the serverless proxy forwards
+                            only the token and resolves brand and environment from it. They do take
+                            effect under <Code>pnpm dev</Code>, where the Vite proxy passes the
+                            headers through.
+                        </Text>
+                    </Box>
+                )}
+
                 <Box>
                     <Text color='gray.600' fontSize='xs' mb={2}>
                         Simulate a response shape (staging returns healthy names, so before/after
