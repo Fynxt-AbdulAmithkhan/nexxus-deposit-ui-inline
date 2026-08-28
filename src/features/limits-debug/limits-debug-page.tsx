@@ -46,9 +46,36 @@ function range(action: LimitAction): string {
  * raw pspActions next to what the old and fixed classifiers make of them. Point
  * VITE_API_TARGET at any environment (staging, UAT, local) to compare.
  */
+/**
+ * Staging returns healthy names, so before/after look identical there. These
+ * reshape the live response into the states that actually break the old logic,
+ * making the difference visible without needing access to a broken environment.
+ */
+const SCENARIOS = {
+    live: { label: 'Live data', apply: (a: LimitAction[]) => a },
+    nullNames: {
+        label: 'Names missing (null)',
+        apply: (a: LimitAction[]) => a.map((x) => ({ ...x, flowActionName: undefined })),
+    },
+    altWording: {
+        label: 'Alternate wording',
+        apply: (a: LimitAction[]) =>
+            a.map((x) => {
+                const name = x.flowActionName?.toLowerCase() ?? '';
+                if (name.includes('deposit')) return { ...x, flowActionName: 'Pay In' };
+                if (name.includes('withdraw')) return { ...x, flowActionName: 'Payout' };
+                return x;
+            }),
+    },
+    noActions: { label: 'No actions at all', apply: () => [] as LimitAction[] },
+} as const;
+
+type ScenarioKey = keyof typeof SCENARIOS;
+
 export function LimitsDebugPage() {
     const [brandId, setBrandId] = useState('');
     const [environmentId, setEnvironmentId] = useState('');
+    const [scenario, setScenario] = useState<ScenarioKey>('live');
 
     const query = useQuery({
         queryKey: ['limits-debug', brandId, environmentId],
@@ -63,7 +90,10 @@ export function LimitsDebugPage() {
         },
     });
 
-    const limits = query.data ?? [];
+    const limits = (query.data ?? []).map((limit) => ({
+        ...limit,
+        pspActions: SCENARIOS[scenario].apply(limit.pspActions ?? []),
+    }));
     const totalActions = limits.reduce((n, l) => n + (l.pspActions?.length ?? 0), 0);
     const missingNames = limits.reduce(
         (n, l) => n + (l.pspActions ?? []).filter((a) => !a.flowActionName?.trim()).length,
@@ -99,6 +129,25 @@ export function LimitsDebugPage() {
                         Fetch
                     </Button>
                 </HStack>
+
+                <Box>
+                    <Text color='gray.600' fontSize='xs' mb={2}>
+                        Simulate a response shape (staging returns healthy names, so before/after
+                        only diverge on the broken ones):
+                    </Text>
+                    <HStack gap={2} wrap='wrap'>
+                        {(Object.keys(SCENARIOS) as ScenarioKey[]).map((key) => (
+                            <Button
+                                key={key}
+                                onClick={() => setScenario(key)}
+                                size='xs'
+                                variant={scenario === key ? 'solid' : 'outline'}
+                            >
+                                {SCENARIOS[key].label}
+                            </Button>
+                        ))}
+                    </HStack>
+                </Box>
 
                 {query.isFetching && (
                     <HStack>
