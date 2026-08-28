@@ -1,9 +1,8 @@
 import { Box, Button, Heading, HStack, Input, Text, VStack } from '@chakra-ui/react';
 import { lazy, Suspense, useState } from 'react';
 
-// Verbatim the CRM's integration: same specifier, same lazy default-export
-// import. '@nexxus/transaction-component' resolves through a Vite alias to the
-// local stand-in in src/lib -- see that file for how to swap in the real package.
+// Verbatim the CRM's integration: the published package, same specifier, same
+// lazy default-export import.
 const TransactionLimitsComponent = lazy(() =>
     import('@nexxus/transaction-component').then((module) => ({
         default: module.TransactionLimitsComponent,
