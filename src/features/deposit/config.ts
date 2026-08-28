@@ -52,51 +52,11 @@ export const NEXXUS_METHOD = {
 const SUPPORTED = ['NGN', 'GHS'];
 
 export const WALLETS: Wallet[] = [
-    {
-        id: 'wallet-usd',
-        accountId: '42911',
-        label: 'USD Wallet',
-        currency: 'USD',
-        balance: 995489.19,
-        flag: '🇺🇸',
-        supportedCurrencies: SUPPORTED,
-    },
-    {
-        id: 'wallet-eur',
-        accountId: '42912',
-        label: 'EUR Wallet',
-        currency: 'EUR',
-        balance: 95940.0,
-        flag: '🇪🇺',
-        supportedCurrencies: SUPPORTED,
-    },
-    {
-        id: 'wallet-gbp',
-        accountId: '42917',
-        label: 'GBP Wallet',
-        currency: 'GBP',
-        balance: 0.0,
-        flag: '🇬🇧',
-        supportedCurrencies: SUPPORTED,
-    },
-    {
-        id: 'wallet-btc',
-        accountId: '178170',
-        label: 'BTC Wallet',
-        currency: 'BTC',
-        balance: 0.0,
-        flag: '🪙',
-        supportedCurrencies: SUPPORTED,
-    },
-    {
-        id: 'wallet-cad',
-        accountId: '42913',
-        label: 'CAD Wallet',
-        currency: 'CAD',
-        balance: 0.0,
-        flag: '🇨🇦',
-        supportedCurrencies: SUPPORTED,
-    },
+    { id: 'wallet-usd', accountId: '42911', label: 'USD Wallet', currency: 'USD', balance: 995489.19, flag: '🇺🇸', supportedCurrencies: SUPPORTED },
+    { id: 'wallet-eur', accountId: '42912', label: 'EUR Wallet', currency: 'EUR', balance: 95940.0, flag: '🇪🇺', supportedCurrencies: SUPPORTED },
+    { id: 'wallet-gbp', accountId: '42917', label: 'GBP Wallet', currency: 'GBP', balance: 0.0, flag: '🇬🇧', supportedCurrencies: SUPPORTED },
+    { id: 'wallet-btc', accountId: '178170', label: 'BTC Wallet', currency: 'BTC', balance: 0.0, flag: '🪙', supportedCurrencies: SUPPORTED },
+    { id: 'wallet-cad', accountId: '42913', label: 'CAD Wallet', currency: 'CAD', balance: 0.0, flag: '🇨🇦', supportedCurrencies: SUPPORTED },
 ];
 
 /**

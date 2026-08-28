@@ -108,21 +108,13 @@ export function DepositForm({
 
             {/* Conversion preview */}
             {showConversion && (
-                <Box
-                    borderWidth='1px'
-                    borderColor='brand.emphasized'
-                    bg='brand.subtle'
-                    borderRadius='md'
-                    p={4}
-                >
+                <Box borderWidth='1px' borderColor='brand.emphasized' bg='brand.subtle' borderRadius='md' p={4}>
                     <Flex align='center' justify='space-between' gap={3}>
                         <Box>
                             <Text fontSize='xs' color='fg.muted'>
                                 You pay
                             </Text>
-                            <Text fontWeight='semibold'>
-                                {formatMoney(amountNum, wallet.currency)}
-                            </Text>
+                            <Text fontWeight='semibold'>{formatMoney(amountNum, wallet.currency)}</Text>
                         </Box>
                         <ArrowRight size={18} />
                         <Box textAlign='right'>

@@ -24,14 +24,7 @@ export function PspList({ psps, loading, selectedPspId, onSelect }: Props) {
 
     if (psps.length === 0) {
         return (
-            <Flex
-                direction='column'
-                align='center'
-                justify='center'
-                py={12}
-                gap={3}
-                textAlign='center'
-            >
+            <Flex direction='column' align='center' justify='center' py={12} gap={3} textAlign='center'>
                 <PackageOpen size={32} />
                 <Text fontSize='sm' color='fg.muted'>
                     No payment providers available for this amount and currency.

@@ -2,12 +2,7 @@
 // where the live API can't be reached (static hosting can't proxy or hold the
 // secret). Returns sample data so the UI is fully clickable end-to-end.
 
-import type {
-    CreateTransactionResponse,
-    FetchPspRequest,
-    FetchPspResponse,
-    PspInfo,
-} from './types';
+import type { CreateTransactionResponse, FetchPspRequest, FetchPspResponse, PspInfo } from './types';
 
 export const DEMO = import.meta.env.VITE_DEMO === 'true';
 
