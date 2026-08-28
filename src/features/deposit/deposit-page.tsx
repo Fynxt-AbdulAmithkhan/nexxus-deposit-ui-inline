@@ -12,6 +12,7 @@ import { useCurrencies } from './hooks/use-currencies';
 import { useFetchPsp } from './hooks/use-fetch-psp';
 import type { CreateTransactionRequest, FetchPspRequest, PspInfo } from './types';
 import { convert, getRate } from './utils/conversion';
+import { applyWidgetOrigin } from './utils/widget-origin';
 import { DEMO } from './demo';
 
 /** Debounce (ms) before an amount/currency change triggers a fetch-psp call. */
@@ -189,7 +190,7 @@ export function DepositPage() {
         try {
             const res = await createTransaction.mutateAsync(payload);
             if (res.sessionUrl) {
-                setSessionUrl(res.sessionUrl);
+                setSessionUrl(applyWidgetOrigin(res.sessionUrl, import.meta.env.VITE_WIDGET_ORIGIN));
                 // The requestId (fetch-psp token) is single-use. Reset the form in the
                 // background so the next deposit runs a fresh fetch-psp for a new one.
                 setAmount('');
