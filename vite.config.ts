@@ -17,6 +17,12 @@ export default defineConfig(({ mode }) => {
         resolve: {
             alias: {
                 '@': fileURLToPath(new URL('./src', import.meta.url)),
+                // Resolve the CRM's package specifier to the local stand-in, so the
+                // demo can integrate with the exact import the CRM uses. Delete this
+                // once the real package is installable.
+                '@nexxus/transaction-component': fileURLToPath(
+                    new URL('./src/lib/nexxus-transaction-component/index.ts', import.meta.url),
+                ),
             },
         },
         server: {
@@ -32,9 +38,17 @@ export default defineConfig(({ mode }) => {
                     // upstream sees a clean request (mirrors calling the API directly).
                     configure: (proxy) => {
                         proxy.on('proxyReq', (proxyReq: import('node:http').ClientRequest) => {
-                            ['origin', 'referer', 'cookie', 'sec-fetch-site', 'sec-fetch-mode', 'sec-fetch-dest', 'sec-ch-ua', 'sec-ch-ua-mobile', 'sec-ch-ua-platform'].forEach(
-                                (h) => proxyReq.removeHeader(h),
-                            );
+                            [
+                                'origin',
+                                'referer',
+                                'cookie',
+                                'sec-fetch-site',
+                                'sec-fetch-mode',
+                                'sec-fetch-dest',
+                                'sec-ch-ua',
+                                'sec-ch-ua-mobile',
+                                'sec-ch-ua-platform',
+                            ].forEach((h) => proxyReq.removeHeader(h));
                             proxyReq.setHeader('user-agent', 'nexxus-deposit-ui/dev-proxy');
                             // Inject the token server-side when provided (keeps it off the client).
                             if (secretToken) proxyReq.setHeader('x-secret-token', secretToken);
