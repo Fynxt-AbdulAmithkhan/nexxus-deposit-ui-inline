@@ -17,16 +17,21 @@ export default defineConfig(({ mode }) => {
         resolve: {
             alias: {
                 '@': fileURLToPath(new URL('./src', import.meta.url)),
-                // Resolve the CRM's package specifier to the local stand-in, so the
-                // demo can integrate with the exact import the CRM uses. Delete this
-                // once the real package is installable.
-                '@nexxus/transaction-component': fileURLToPath(
-                    new URL('./src/lib/nexxus-transaction-component/index.ts', import.meta.url),
-                ),
             },
         },
+        // Linked from a sibling checkout during development; Vite should serve it
+        // as source rather than prebundling it.
+        optimizeDeps: { exclude: ['@nexxus/transaction-component'] },
         server: {
             port: 5176,
+            // @nexxus/transaction-component is linked from a sibling checkout during
+            // local development, which lives outside this project's root.
+            fs: {
+                allow: [
+                    fileURLToPath(new URL('.', import.meta.url)),
+                    fileURLToPath(new URL('../nexxus/frontend/lib-package', import.meta.url)),
+                ],
+            },
             proxy: {
                 // Same-origin /nexxus/* -> hosted API. Keeps VITE_API_BASE_URL empty in dev.
                 '/nexxus': {
