@@ -4,7 +4,10 @@
 // x-secret-token from server env NEXXUS_SECRET_TOKEN (secret stays server-side; no CORS).
 
 export default async function handler(req, res) {
-    const target = (process.env.NEXXUS_API_TARGET || 'https://api.nexxus.fynxt.io').replace(/\/$/, '');
+    const target = (process.env.NEXXUS_API_TARGET || 'https://api.nexxus.fynxt.io').replace(
+        /\/$/,
+        '',
+    );
     const token = process.env.NEXXUS_SECRET_TOKEN || '';
 
     let path = req.query.path;
@@ -21,6 +24,18 @@ export default async function handler(req, res) {
     const headers = { accept: 'application/json' };
     if (req.headers['content-type']) headers['content-type'] = req.headers['content-type'];
     if (token) headers['x-secret-token'] = token;
+
+    // Off by default, and it should stay off on anything public. The API honours
+    // caller-supplied brand/environment headers while x-secret-token bypasses the
+    // permission check, so forwarding these lets a visitor read any brand the
+    // token can reach -- not just the one the token belongs to. Enable only on a
+    // deployment you control and are using to inspect a specific brand.
+    if (process.env.ALLOW_BRAND_OVERRIDE === 'true') {
+        for (const name of ['x-brand-id', 'x-env-id']) {
+            const value = req.headers[name];
+            if (typeof value === 'string' && value) headers[name] = value;
+        }
+    }
 
     const init = { method: req.method, headers };
     if (!['GET', 'HEAD'].includes(req.method || 'GET')) {

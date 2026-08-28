@@ -54,6 +54,15 @@ async function proxy(req, res) {
     if (req.headers['content-type']) headers['content-type'] = req.headers['content-type'];
     if (TOKEN) headers['x-secret-token'] = TOKEN;
 
+    // See api/proxy.js: off by default because the API trusts these headers while
+    // the secret token bypasses the permission check.
+    if (process.env.ALLOW_BRAND_OVERRIDE === 'true') {
+        for (const name of ['x-brand-id', 'x-env-id']) {
+            const value = req.headers[name];
+            if (typeof value === 'string' && value) headers[name] = value;
+        }
+    }
+
     const init = { method: req.method, headers };
     if (req.method !== 'GET' && req.method !== 'HEAD') {
         const body = await readBody(req);
@@ -87,7 +96,10 @@ async function serveStatic(req, res) {
         const info = await stat(filePath);
         if (info.isDirectory()) filePath = path.join(filePath, 'index.html');
         const data = await readFile(filePath);
-        res.writeHead(200, { 'content-type': MIME[path.extname(filePath).toLowerCase()] || 'application/octet-stream' });
+        res.writeHead(200, {
+            'content-type':
+                MIME[path.extname(filePath).toLowerCase()] || 'application/octet-stream',
+        });
         res.end(data);
     } catch {
         // SPA fallback → index.html

@@ -133,10 +133,10 @@ export function LimitsDebugPage() {
                 {(brandId.trim() || environmentId.trim()) && (
                     <Box bg='orange.50' borderRadius='md' p={3}>
                         <Text color='orange.800' fontSize='sm'>
-                            These are ignored on a deployed build: the serverless proxy forwards
-                            only the token and resolves brand and environment from it. They do take
-                            effect under <Code>pnpm dev</Code>, where the Vite proxy passes the
-                            headers through.
+                            On a deployed build these only work when the proxy is set to forward
+                            them (ALLOW_BRAND_OVERRIDE=true server-side). Otherwise the results
+                            below are the token's own brand. Under <Code>pnpm dev</Code> they always
+                            apply.
                         </Text>
                     </Box>
                 )}

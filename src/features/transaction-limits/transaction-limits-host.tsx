@@ -85,9 +85,9 @@ export function TransactionLimitsHost() {
                 {!domain.trim() && (brandId.trim() || environmentId.trim()) && (
                     <Box bg='orange.50' borderRadius='md' p={3}>
                         <Text color='orange.800' fontSize='sm'>
-                            Brand and environment are being ignored. With no domain the call goes
-                            through the proxy, which forwards only the token and resolves brand and
-                            environment from it. The results below are the token's own brand.
+                            With no domain the call goes through the proxy, which only forwards
+                            brand and environment when ALLOW_BRAND_OVERRIDE=true is set server-side.
+                            Without it the results below are the token's own brand.
                         </Text>
                     </Box>
                 )}

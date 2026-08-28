@@ -190,7 +190,9 @@ export function DepositPage() {
         try {
             const res = await createTransaction.mutateAsync(payload);
             if (res.sessionUrl) {
-                setSessionUrl(applyWidgetOrigin(res.sessionUrl, import.meta.env.VITE_WIDGET_ORIGIN));
+                setSessionUrl(
+                    applyWidgetOrigin(res.sessionUrl, import.meta.env.VITE_WIDGET_ORIGIN),
+                );
                 // The requestId (fetch-psp token) is single-use. Reset the form in the
                 // background so the next deposit runs a fresh fetch-psp for a new one.
                 setAmount('');
@@ -208,124 +210,127 @@ export function DepositPage() {
 
     return (
         <Box position='relative' minH='100vh'>
-            <Box
-                position='absolute'
-                top={{ base: 4, md: 6 }}
-                right={{ base: 4, md: 6 }}
-                zIndex={1}
-            >
+            <Box position='absolute' top={{ base: 4, md: 6 }} right={{ base: 4, md: 6 }} zIndex={1}>
                 <CountrySelector value={country} onChange={setCountry} />
             </Box>
 
             <Flex minH='100vh' direction='column' align='center' py={{ base: 6, md: 12 }} px={4}>
-            <Box w='full' maxW='560px'>
-                <Heading size='xl' mb={1}>
-                    Deposit
-                </Heading>
-                <Text color='fg.muted' mb={6}>
-                    Fund your account with {NEXXUS_METHOD.name}. Pick a wallet and amount — providers update
-                    as you change the currency.
-                </Text>
+                <Box w='full' maxW='560px'>
+                    <Heading size='xl' mb={1}>
+                        Deposit
+                    </Heading>
+                    <Text color='fg.muted' mb={6}>
+                        Fund your account with {NEXXUS_METHOD.name}. Pick a wallet and amount —
+                        providers update as you change the currency.
+                    </Text>
 
-                {DEMO && (
-                    <Flex
-                        align='flex-start'
-                        gap={2}
-                        mb={6}
-                        p={3}
-                        borderWidth='1px'
-                        borderColor='brand.emphasized'
-                        bg='brand.subtle'
-                        borderRadius='md'
-                    >
-                        <Box color='brand.fg' mt='2px'>
-                            <ShieldCheck size={16} />
-                        </Box>
-                        <Text fontSize='xs' color='brand.fg'>
-                            Preview with <b>sample data</b> — not connected to the live API. The full working
-                            flow (real providers + payment) runs from the deployable container build.
-                        </Text>
-                    </Flex>
-                )}
+                    {DEMO && (
+                        <Flex
+                            align='flex-start'
+                            gap={2}
+                            mb={6}
+                            p={3}
+                            borderWidth='1px'
+                            borderColor='brand.emphasized'
+                            bg='brand.subtle'
+                            borderRadius='md'
+                        >
+                            <Box color='brand.fg' mt='2px'>
+                                <ShieldCheck size={16} />
+                            </Box>
+                            <Text fontSize='xs' color='brand.fg'>
+                                Preview with <b>sample data</b> — not connected to the live API. The
+                                full working flow (real providers + payment) runs from the
+                                deployable container build.
+                            </Text>
+                        </Flex>
+                    )}
 
-                {!authConfigured && (
-                    <Flex
-                        align='flex-start'
-                        gap={2}
-                        mb={6}
-                        p={3}
-                        borderWidth='1px'
-                        borderColor='border'
-                        bg='bg.muted'
-                        borderRadius='md'
-                    >
-                        <Box color='fg.muted' mt='2px'>
-                            <ShieldCheck size={16} />
-                        </Box>
-                        <Text fontSize='xs' color='fg.muted'>
-                            No secret token configured. Set <b>VITE_SECRET_TOKEN</b> in <b>.env</b> to reach the
-                            backend — the UI works, but API calls will be rejected until then.
-                        </Text>
-                    </Flex>
-                )}
+                    {!authConfigured && (
+                        <Flex
+                            align='flex-start'
+                            gap={2}
+                            mb={6}
+                            p={3}
+                            borderWidth='1px'
+                            borderColor='border'
+                            bg='bg.muted'
+                            borderRadius='md'
+                        >
+                            <Box color='fg.muted' mt='2px'>
+                                <ShieldCheck size={16} />
+                            </Box>
+                            <Text fontSize='xs' color='fg.muted'>
+                                No secret token configured. Set <b>VITE_SECRET_TOKEN</b> in{' '}
+                                <b>.env</b> to reach the backend — the UI works, but API calls will
+                                be rejected until then.
+                            </Text>
+                        </Flex>
+                    )}
 
-                <VStack align='stretch' gap={5}>
-                    <Card>
-                        <WalletSelector wallets={WALLETS} value={walletId} onChange={handleWalletChange} />
-                    </Card>
-
-                    {wallet && (
+                    <VStack align='stretch' gap={5}>
                         <Card>
-                            <DepositForm
-                                wallet={wallet}
-                                currencies={currencies}
-                                currency={currency}
-                                onCurrencyChange={setCurrency}
-                                amount={amount}
-                                onAmountChange={setAmount}
-                                convertedAmount={convertedAmount}
-                                usingFallbackCurrencies={usingFallback}
+                            <WalletSelector
+                                wallets={WALLETS}
+                                value={walletId}
+                                onChange={handleWalletChange}
                             />
                         </Card>
-                    )}
 
-                    {canFetch && (
-                        <Box>
-                            <PspList
-                                psps={psps}
-                                loading={loadingPsps}
-                                selectedPspId={selectedPspId}
-                                onSelect={(psp) => setSelectedPspId(psp.id)}
-                            />
+                        {wallet && (
+                            <Card>
+                                <DepositForm
+                                    wallet={wallet}
+                                    currencies={currencies}
+                                    currency={currency}
+                                    onCurrencyChange={setCurrency}
+                                    amount={amount}
+                                    onAmountChange={setAmount}
+                                    convertedAmount={convertedAmount}
+                                    usingFallbackCurrencies={usingFallback}
+                                />
+                            </Card>
+                        )}
 
-                            {psps.length > 0 && (
-                                <Button
-                                    colorPalette='brand'
-                                    size='lg'
-                                    w='full'
-                                    mt={4}
-                                    loading={createTransaction.isPending}
-                                    disabled={!selectedPspId}
-                                    onClick={handleSubmit}
-                                >
-                                    Submit
-                                </Button>
-                            )}
+                        {canFetch && (
+                            <Box>
+                                <PspList
+                                    psps={psps}
+                                    loading={loadingPsps}
+                                    selectedPspId={selectedPspId}
+                                    onSelect={(psp) => setSelectedPspId(psp.id)}
+                                />
 
-                            {fetchPsp.isError && <ErrorBanner message={fetchPsp.error.message} />}
-                            {createTransaction.isError && (
-                                <ErrorBanner message={createTransaction.error.message} />
-                            )}
-                        </Box>
-                    )}
-                </VStack>
-            </Box>
+                                {psps.length > 0 && (
+                                    <Button
+                                        colorPalette='brand'
+                                        size='lg'
+                                        w='full'
+                                        mt={4}
+                                        loading={createTransaction.isPending}
+                                        disabled={!selectedPspId}
+                                        onClick={handleSubmit}
+                                    >
+                                        Submit
+                                    </Button>
+                                )}
 
-            <IframePayment
-                isOpen={Boolean(sessionUrl)}
-                url={sessionUrl ?? ''}
-                onClose={() => setSessionUrl(null)}
-            />
+                                {fetchPsp.isError && (
+                                    <ErrorBanner message={fetchPsp.error.message} />
+                                )}
+                                {createTransaction.isError && (
+                                    <ErrorBanner message={createTransaction.error.message} />
+                                )}
+                            </Box>
+                        )}
+                    </VStack>
+                </Box>
+
+                <IframePayment
+                    isOpen={Boolean(sessionUrl)}
+                    url={sessionUrl ?? ''}
+                    onClose={() => setSessionUrl(null)}
+                />
             </Flex>
         </Box>
     );

@@ -27,7 +27,14 @@ export function IframePayment({ isOpen, url, onClose }: Props) {
     if (!isOpen) return null;
 
     return (
-        <Box position='fixed' inset={0} bg='white' zIndex={9999} display='flex' flexDirection='column'>
+        <Box
+            position='fixed'
+            inset={0}
+            bg='white'
+            zIndex={9999}
+            display='flex'
+            flexDirection='column'
+        >
             <HStack
                 w='full'
                 p={4}
@@ -55,7 +62,13 @@ export function IframePayment({ isOpen, url, onClose }: Props) {
             </HStack>
 
             {isLoading && (
-                <Box position='absolute' top='50%' left='50%' transform='translate(-50%, -50%)' zIndex={20}>
+                <Box
+                    position='absolute'
+                    top='50%'
+                    left='50%'
+                    transform='translate(-50%, -50%)'
+                    zIndex={20}
+                >
                     <VStack gap={3}>
                         <Spinner size='lg' color='brand.solid' />
                         <Text fontSize='sm' color='gray.600'>
