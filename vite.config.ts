@@ -19,19 +19,12 @@ export default defineConfig(({ mode }) => {
                 '@': fileURLToPath(new URL('./src', import.meta.url)),
             },
         },
-        // Linked from a sibling checkout during development; Vite should serve it
-        // as source rather than prebundling it.
+        // Vendored rather than published, so let Vite serve it as source instead of
+        // prebundling it -- its dependency scan trips over a require() FontAwesome
+        // makes inside a try/catch.
         optimizeDeps: { exclude: ['@nexxus/transaction-component'] },
         server: {
             port: 5176,
-            // @nexxus/transaction-component is linked from a sibling checkout during
-            // local development, which lives outside this project's root.
-            fs: {
-                allow: [
-                    fileURLToPath(new URL('.', import.meta.url)),
-                    fileURLToPath(new URL('../nexxus/frontend/lib-package', import.meta.url)),
-                ],
-            },
             proxy: {
                 // Same-origin /nexxus/* -> hosted API. Keeps VITE_API_BASE_URL empty in dev.
                 '/nexxus': {

@@ -1,0 +1,24 @@
+{
+    "name": "@nexxus/transaction-component",
+    "version": "0.1.0",
+    "description": "Nexxus transaction-limits table, mountable standalone by a host application.",
+    "type": "module",
+    "main": "./dist/index.js",
+    "module": "./dist/index.js",
+    "types": "./index.d.ts",
+    "exports": {
+        ".": {
+            "types": "./index.d.ts",
+            "import": "./dist/index.js"
+        }
+    },
+    "files": ["dist", "index.d.ts"],
+    "peerDependencies": {
+        "@chakra-ui/react": ">=3",
+        "@emotion/react": ">=11",
+        "@emotion/styled": ">=11",
+        "@tanstack/react-query": ">=5",
+        "react": ">=18",
+        "react-dom": ">=18"
+    }
+}
