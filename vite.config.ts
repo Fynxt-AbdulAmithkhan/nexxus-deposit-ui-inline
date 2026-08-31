@@ -19,10 +19,10 @@ export default defineConfig(({ mode }) => {
                 '@': fileURLToPath(new URL('./src', import.meta.url)),
             },
         },
-        // Vendored rather than published, so let Vite serve it as source instead of
-        // prebundling it -- its dependency scan trips over a require() FontAwesome
-        // makes inside a try/catch.
-        optimizeDeps: { exclude: ['@nexxus/transaction-component'] },
+        // Vendored rather than published. Let Vite prebundle it so its peer imports
+        // (emotion, chakra) resolve to the same CJS-converted copies the app uses --
+        // excluding it leaves raw ESM that breaks on emotion's CJS deps.
+        optimizeDeps: { include: ['@nexxus/transaction-component'] },
         server: {
             port: 5176,
             proxy: {
