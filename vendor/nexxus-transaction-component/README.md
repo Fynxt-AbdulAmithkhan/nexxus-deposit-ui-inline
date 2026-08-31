@@ -9,9 +9,12 @@ Source lives in `nexxus/frontend/src/lib/transaction-component`. To refresh:
 ```bash
 cd ../nexxus/frontend
 npx vite build --config vite.lib.config.ts
-cp lib-package/dist/index.js  ../../nexxus-deposit-ui-inline/vendor/nexxus-transaction-component/dist/
+cp lib-package/dist/index.js  ../../nexxus-deposit-ui-inline/vendor/nexxus-transaction-component/bundle/
 cp lib-package/index.d.ts     ../../nexxus-deposit-ui-inline/vendor/nexxus-transaction-component/
 ```
 
 Delete this directory once the package is published to a registry, and depend on
 a version range instead.
+
+The folder is `bundle/`, not `dist/`, because the repo gitignore excludes `dist`
+at any depth and would silently drop the build.
