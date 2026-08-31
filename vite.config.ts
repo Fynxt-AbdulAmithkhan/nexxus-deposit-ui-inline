@@ -19,10 +19,7 @@ export default defineConfig(({ mode }) => {
                 '@': fileURLToPath(new URL('./src', import.meta.url)),
             },
         },
-        // Vendored rather than published. Let Vite prebundle it so its peer imports
-        // (emotion, chakra) resolve to the same CJS-converted copies the app uses --
-        // excluding it leaves raw ESM that breaks on emotion's CJS deps.
-        optimizeDeps: { include: ['@nexxus/transaction-component'] },
+
         server: {
             port: 5176,
             proxy: {
