@@ -1,0 +1,137 @@
+/* Custom styles for React Query Builder with Chakra UI */
+
+.query-builder-custom {
+	font-family: inherit;
+}
+
+.query-builder-custom .chakra-select__wrapper {
+	width: fit-content;
+	display: inline-block;
+	min-width: 120px;
+}
+
+.query-builder-custom .chakra-input {
+	display: inline-block;
+	min-width: 100px;
+}
+
+.query-builder-custom .chakra-radio-group {
+	display: inline-block;
+}
+.ruleGroup-combinators {
+	width: 100px;
+}
+.betweenRules {
+	width: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	position: relative;
+}
+
+.betweenRules::before,
+.betweenRules::after {
+	content: "";
+	flex: 1;
+	height: 1px;
+	background-color: #e2e8f0;
+	margin: 0 0px;
+}
+
+.betweenRules .ruleGroup-combinators {
+	position: relative;
+	z-index: 1;
+	background-color: white;
+	padding: 0 1px;
+}
+.query-builder-custom .ruleGroup {
+	border-radius: 6px;
+	background-color: white;
+	border: 1px solid lightgray;
+
+	margin: 8px;
+}
+
+.query-builder-custom .ruleGroup-header {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-bottom: 12px;
+}
+
+.query-builder-custom .rule {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin: 8px 0;
+	padding: 8px;
+	background-color: white;
+	border-radius: 4px;
+}
+
+.query-builder-custom .rule-field,
+.query-builder-custom .rule-operator,
+.query-builder-custom .rule-value {
+	margin-right: 8px;
+}
+
+.query-builder-custom button {
+	padding: 4px 8px;
+	border-radius: 4px;
+	/* border: 1px solid #cbd5e0; */
+	background-color: white;
+	color: #2d3748;
+	font-size: 12px;
+	cursor: pointer;
+	transition: all 0.2s;
+}
+
+.query-builder-custom .ruleGroup-addRule,
+.query-builder-custom .ruleGroup-addGroup {
+	background-color: transparent;
+	color: #0099ff;
+	border: none;
+}
+
+.query-builder-custom .ruleGroup-addRule:hover,
+.query-builder-custom .ruleGroup-addGroup:hover {
+	background-color: transparent;
+}
+
+/* Move add buttons to bottom */
+.query-builder-custom .ruleGroup-header {
+	order: 1;
+}
+
+.query-builder-custom .ruleGroup-rules {
+	order: 2;
+}
+
+.query-builder-custom .ruleGroup-actions {
+	order: 3;
+	margin-top: 16px;
+	padding-top: 16px;
+	border-top: 1px solid #e2e8f0;
+}
+
+/* .query-builder-custom .rule-remove {
+  background-color: #e53e3e;
+  color: white;
+  border-color: #e53e3e;
+}
+
+.query-builder-custom .rule-remove:hover {
+  background-color: #c53030;
+  border-color: #c53030;
+}
+
+.query-builder-custom .ruleGroup-remove {
+  background-color: #ed8936;
+  color: white;
+  border-color: #ed8936;
+}
+
+.query-builder-custom .ruleGroup-remove:hover {
+  background-color: #dd6b20;
+  border-color: #dd6b20;
+} */

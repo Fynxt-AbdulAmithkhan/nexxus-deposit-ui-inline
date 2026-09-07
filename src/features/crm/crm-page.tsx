@@ -4,7 +4,10 @@ import { useMemo, useState } from 'react';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { Tabs } from '@/components/ui/Tabs';
 import { DEMO } from '../deposit/demo';
+import '@/styles/query-builder.css';
 import FeeList from './fee/list';
+import RiskList from './risk/list';
+import RoutingRuleList from './routing/list';
 import TransactionLimitList from './transaction-limits/list';
 
 /**
@@ -30,6 +33,16 @@ export function CrmPage() {
                 id: 'fees',
                 label: 'Fees Management',
                 content: <FeeList />,
+            },
+            {
+                id: 'risk',
+                label: 'Risk Management',
+                content: <RiskList />,
+            },
+            {
+                id: 'routing',
+                label: 'Routing Rules',
+                content: <RoutingRuleList />,
             },
         ],
         [],

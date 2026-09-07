@@ -26,6 +26,16 @@ export const API_ENDPOINTS = {
         create: () => '/transaction-limits',
         byId: (id: number | string) => `/transaction-limits/${id}`,
     },
+    riskRules: {
+        list: () => '/risk-rules',
+        create: () => '/risk-rules',
+        byId: (id: number | string) => `/risk-rules/${id}`,
+    },
+    routingRules: {
+        list: () => '/routing-rules',
+        create: () => '/routing-rules',
+        byId: (id: number | string) => `/routing-rules/${id}`,
+    },
     // Brand + environment lookups. Both are in the service's `no-brand-env-paths`, so
     // they resolve without X-BRAND-ID / X-ENV-ID and can be used to pick one.
     brands: {

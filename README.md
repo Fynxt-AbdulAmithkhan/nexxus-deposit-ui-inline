@@ -104,9 +104,11 @@ src/
                            deposit form, PSP list/card, payment iframe
     deposit-page.tsx       flow orchestrator (state machine)
   features/crm/            CRM rule screens, copied from the CRM frontend
-    fee/                   fees list + modal form
     transaction-limits/    limits list + modal form
-    crm-page.tsx           PageHeader + tabs
+    fee/                   fees list + modal form
+    risk/                  risk rules list + modal form
+    routing/               routing rules list + query-builder form
+    crm-page.tsx           PageHeader + the four rule tabs
   features/brand-env/      brand + environment selector
   components/ui/           CRM DataTable, Modal, Tabs, PageHeader, formatters
   components/forms/        CRM form inputs (input, select, multi-select, ...)
