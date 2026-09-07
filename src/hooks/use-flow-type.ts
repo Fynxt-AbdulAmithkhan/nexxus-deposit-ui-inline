@@ -32,12 +32,20 @@ export const useFlowType = () => {
         refetchOnWindowFocus: false,
     });
 
-    const selectedFlowType = queryClient.getQueryData<FlowType>(['selectedFlowType']);
+    const cachedFlowType = queryClient.getQueryData<FlowType>(['selectedFlowType']);
+
+    // The cache slot is not brand-scoped, so after switching brand it still holds the
+    // previous brand's flow type — which would resolve that brand's flow actions. Only
+    // treat it as selected while it actually belongs to the brand's fetched list.
+    const selectedFlowType =
+        cachedFlowType && flowTypes?.some((type) => type.id === cachedFlowType.id)
+            ? cachedFlowType
+            : undefined;
 
     useEffect(() => {
-        if (!selectedFlowType && flowTypes && flowTypes.length > 0) {
-            queryClient.setQueryData(['selectedFlowType'], flowTypes[0]);
-        }
+        if (!flowTypes || flowTypes.length === 0) return;
+        if (selectedFlowType) return;
+        queryClient.setQueryData(['selectedFlowType'], flowTypes[0]);
     }, [selectedFlowType, flowTypes, queryClient]);
 
     const updateSelectedFlowType = (flowType: FlowType | null) => {
