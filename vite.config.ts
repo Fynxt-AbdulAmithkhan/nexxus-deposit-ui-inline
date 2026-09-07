@@ -18,6 +18,10 @@ export default defineConfig(({ mode }) => {
             alias: {
                 '@': fileURLToPath(new URL('./src', import.meta.url)),
             },
+            // Force single instances. Without this, some of the CRM screens' dependencies
+            // resolve their own copy of React/emotion, which surfaces as "Invalid hook
+            // call" and "@emotion/react is already loaded" at runtime.
+            dedupe: ['react', 'react-dom', '@emotion/react', '@emotion/styled'],
         },
 
         server: {

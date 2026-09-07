@@ -1,10 +1,10 @@
 import { Badge, Box, chakra, Flex, Text } from '@chakra-ui/react';
 import { Settings2, Wallet } from 'lucide-react';
 import { useState } from 'react';
+import { BrandEnvSelector } from './features/brand-env/brand-env-selector';
+import { CrmPage } from './features/crm/crm-page';
 import { DepositPage } from './features/deposit/deposit-page';
 import { DEMO } from './features/deposit/demo';
-import { CrmPage } from './features/rules/crm-page';
-import { useRulesState } from './features/rules/store';
 
 type Tab = 'cp' | 'crm';
 
@@ -31,9 +31,9 @@ function TabButton({
             fontSize='sm'
             fontWeight={active ? 'semibold' : 'medium'}
             cursor='pointer'
-            color={active ? 'brand.fg' : 'fg.muted'}
+            color={active ? 'primary.fg' : 'fg.muted'}
             borderBottomWidth='2px'
-            borderColor={active ? 'brand.solid' : 'transparent'}
+            borderColor={active ? 'primary.fg' : 'transparent'}
             bg='transparent'
         >
             {icon}
@@ -44,7 +44,6 @@ function TabButton({
 
 export default function App() {
     const [tab, setTab] = useState<Tab>('cp');
-    const { mode } = useRulesState();
 
     return (
         <Box minH='100vh'>
@@ -72,21 +71,16 @@ export default function App() {
 
                 <Box flex={1} />
 
-                {DEMO ? (
-                    <Badge size='sm' colorPalette={mode === 'legacy' ? 'red' : 'green'}>
-                        {mode === 'legacy' ? 'legacy behaviour' : 'fixed behaviour'}
-                    </Badge>
-                ) : (
-                    <Badge size='sm' colorPalette='blue'>
-                        live API
-                    </Badge>
-                )}
+                {!DEMO && <BrandEnvSelector />}
+
+                <Badge size='sm' colorPalette={DEMO ? 'gray' : 'blue'} ml={2}>
+                    {DEMO ? 'sample data' : 'live API'}
+                </Badge>
             </Flex>
 
             {/*
-              Both tabs stay mounted so the deposit form keeps its wallet, amount and
-              country while you flip to the CRM and back — the whole point of the harness
-              is comparing outcomes across a rule or behaviour change.
+              Both tabs stay mounted so the deposit form keeps its wallet, amount, country
+              and customer tag while you switch to the CRM to change a rule and come back.
             */}
             <Box display={tab === 'cp' ? 'block' : 'none'}>
                 <DepositPage />

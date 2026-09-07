@@ -28,6 +28,20 @@ const config = defineConfig({
                 body: { value: 'system-ui, -apple-system, Segoe UI, Roboto, sans-serif' },
             },
             colors: {
+                // Lifted verbatim from the CRM theme so the copied rule screens match it.
+                primary: {
+                    50: { value: '#f6f9ff' },
+                    100: { value: '#ecf2ff' },
+                    200: { value: '#dde9ff' },
+                    300: { value: '#c6daff' },
+                    400: { value: '#a7c6ff' },
+                    500: { value: '#70a3ff' },
+                    600: { value: '#528fff' },
+                    700: { value: '#2d77ff' },
+                    800: { value: '#1165ff' },
+                    900: { value: '#0040b3' },
+                    950: { value: '#002666' },
+                },
                 brand: {
                     50: { value: '#f6f9ff' },
                     100: { value: '#ecf2ff' },
@@ -45,6 +59,19 @@ const config = defineConfig({
         },
         semanticTokens: {
             colors: {
+                // The copied CRM screens reference `primary.*`; everything else they use
+                // (gray/blue/red/green/orange/purple) comes from the Chakra defaults.
+                primary: {
+                    solid: { value: '{colors.primary.950}' },
+                    contrast: { value: '{colors.white}' },
+                    fg: { value: { base: '{colors.primary.600}', _dark: '{colors.primary.400}' } },
+                    muted: { value: { base: '{colors.primary.50}', _dark: '{colors.primary.950}' } },
+                    subtle: { value: { base: '{colors.primary.100}', _dark: '{colors.primary.900}' } },
+                    emphasized: {
+                        value: { base: '{colors.primary.200}', _dark: '{colors.primary.800}' },
+                    },
+                    focusRing: { value: '{colors.primary.600}' },
+                },
                 brand: {
                     solid: { value: '{colors.brand.700}' },
                     contrast: { value: '{colors.white}' },

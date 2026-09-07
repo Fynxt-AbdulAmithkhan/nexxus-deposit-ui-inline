@@ -3,6 +3,7 @@ import axios, {
     type AxiosRequestConfig,
     type InternalAxiosRequestConfig,
 } from 'axios';
+import { getBrandEnvSelection } from '@/hooks/brand-environment.store';
 import { createApiError } from './errors';
 import type { ApiEnvelope, ApiRequestConfig, ApiResponse } from './types';
 
@@ -19,6 +20,21 @@ function authHeaders(): Record<string, string> {
     const secretToken = import.meta.env.VITE_SECRET_TOKEN;
     if (secretToken) headers['x-secret-token'] = secretToken;
     return headers;
+}
+
+/**
+ * Brand + environment override for the selected brand.
+ *
+ * The service honours these in preference to the token's own context. Note that a
+ * deployed build's proxy drops them unless ALLOW_BRAND_OVERRIDE=true is set server-side
+ * — deliberately, since x-secret-token bypasses the permission check, so forwarding them
+ * unconditionally would let any visitor read every brand the token can reach. Under
+ * `pnpm dev` the Vite proxy passes them through.
+ */
+function brandEnvHeaders(): Record<string, string> {
+    const selection = getBrandEnvSelection();
+    if (!selection) return {};
+    return { 'x-brand-id': selection.brandId, 'x-env-id': selection.environmentId };
 }
 
 /** Unwrap the brand-service `{ data, message, status }` envelope when present. */
@@ -46,6 +62,9 @@ class ApiClient {
             const custom = config as InternalAxiosRequestConfig & ApiRequestConfig;
             if (!custom.skipAuth && config.headers) {
                 Object.assign(config.headers, authHeaders());
+                if (!custom.skipBrandEnv) {
+                    Object.assign(config.headers, brandEnvHeaders());
+                }
             }
             if (custom.headers && config.headers) {
                 Object.assign(config.headers, custom.headers);
@@ -73,6 +92,23 @@ class ApiClient {
         config?: AxiosRequestConfig & ApiRequestConfig,
     ): Promise<ApiResponse<T>> {
         const response = await this.client.post(url, data, config);
+        return { data: unwrap<T>(response.data), status: response.status };
+    }
+
+    async put<T = unknown, D = unknown>(
+        url: string,
+        data?: D,
+        config?: AxiosRequestConfig & ApiRequestConfig,
+    ): Promise<ApiResponse<T>> {
+        const response = await this.client.put(url, data, config);
+        return { data: unwrap<T>(response.data), status: response.status };
+    }
+
+    async delete<T = unknown>(
+        url: string,
+        config?: AxiosRequestConfig & ApiRequestConfig,
+    ): Promise<ApiResponse<T>> {
+        const response = await this.client.delete(url, config);
         return { data: unwrap<T>(response.data), status: response.status };
     }
 }

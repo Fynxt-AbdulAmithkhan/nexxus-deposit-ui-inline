@@ -26,5 +26,10 @@ export interface ApiRequestConfig {
     headers?: Record<string, string>;
     /** Skip attaching the Authorization / brand / env headers (public endpoints). */
     skipAuth?: boolean;
+    /**
+     * Skip the X-BRAND-ID / X-ENV-ID override. Needed by the brand and environment
+     * lookups themselves, which must resolve before a brand has been chosen.
+     */
+    skipBrandEnv?: boolean;
     timeout?: number;
 }

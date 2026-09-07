@@ -48,37 +48,11 @@ function Row({
 }
 
 /**
- * Which rules the engine consulted. Demo-only, and the point of the harness: a rule listed
- * as skipped is one the shipped code would have charged anyway.
- */
-function RuleTrace({ psp }: { psp: PspInfo }) {
-    const applied = psp.appliedRuleNames ?? [];
-    const skipped = psp.skippedForCountryNames ?? [];
-
-    if (applied.length === 0 && skipped.length === 0) return null;
-
-    return (
-        <Box mt={1.5}>
-            {applied.length > 0 && (
-                <Text fontSize='2xs' color='fg.subtle'>
-                    applied: {applied.join(', ')}
-                </Text>
-            )}
-            {skipped.length > 0 && (
-                <Text fontSize='2xs' color='fg.subtle'>
-                    skipped (country out of scope): {skipped.join(', ')}
-                </Text>
-            )}
-        </Box>
-    );
-}
-
-/**
- * Per-PSP fee breakdown from RequestOutputDto.PspInfo.
+ * Fee breakdown for one PSP, straight from RequestOutputDto.PspInfo.
  *
- * Fees are scoped by the rule's configured countries, so this panel is what makes that
- * scoping visible: change the user country and a rule that does not cover the new country
- * stops being charged, leaving the explicit "No fee" state.
+ * The brand service scopes a fee rule by its configured countries, so this panel is what
+ * makes that scoping observable: change the customer country and a rule that does not
+ * cover the new country stops being charged, leaving the explicit "no fee" state.
  */
 export function PspFeeSummary({ psp }: Props) {
     const currency = psp.currency;
@@ -86,8 +60,7 @@ export function PspFeeSummary({ psp }: Props) {
     if (!psp.feeApplied) {
         return (
             <Box borderTopWidth='1px' borderColor='border' pt={2} mt={2}>
-                <Row label='No fee for this country' value={formatMoney(psp.originalAmount, currency)} />
-                <RuleTrace psp={psp} />
+                <Row label='No fee applied' value={formatMoney(psp.originalAmount, currency)} />
             </Box>
         );
     }
@@ -124,8 +97,6 @@ export function PspFeeSummary({ psp }: Props) {
                     />
                 )}
             </Flex>
-
-            <RuleTrace psp={psp} />
         </Box>
     );
 }

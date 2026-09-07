@@ -1,7 +1,7 @@
-import { Box, Button, Flex, Heading, Text, VStack } from '@chakra-ui/react';
+import { Box, Button, chakra, Flex, Heading, Text, VStack } from '@chakra-ui/react';
 import { AlertTriangle, ShieldCheck } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
-import { CUSTOMER_PROFILE, NEXXUS_METHOD, REQUEST_CONTEXT, WALLETS } from './config';
+import { CUSTOMER_PROFILE, CUSTOMER_TAGS, NEXXUS_METHOD, REQUEST_CONTEXT, WALLETS } from './config';
 import { CountrySelector } from './components/country-selector';
 import { DepositForm } from './components/deposit-form';
 import { IframePayment } from './components/iframe-payment';
@@ -10,13 +10,11 @@ import { WalletSelector } from './components/wallet-selector';
 import { useCreateTransaction } from './hooks/use-create-transaction';
 import { useCurrencies } from './hooks/use-currencies';
 import { useFetchPsp } from './hooks/use-fetch-psp';
-import type { CreateTransactionRequest, ExcludedPsp, FetchPspRequest, PspInfo } from './types';
+import type { CreateTransactionRequest, FetchPspRequest, PspInfo } from './types';
 import { convert, getRate } from './utils/conversion';
 import { applyWidgetOrigin } from './utils/widget-origin';
 import { DEMO } from './demo';
-import { DEMO_CUSTOMER_TAGS } from '../rules/defaults';
-import { useRulesState } from '../rules/store';
-import { Select } from '../rules/components/primitives';
+import { pickDefaultDepositAction, useFlowActions } from '@/hooks/use-flow-actions';
 
 /** Debounce (ms) before an amount/currency change triggers a fetch-psp call. */
 const AUTO_FETCH_DEBOUNCE = 500;
@@ -61,10 +59,11 @@ export function DepositPage() {
     const [currency, setCurrency] = useState('');
     const [country, setCountry] = useState<string>(REQUEST_CONTEXT.country);
     const [customerTag, setCustomerTag] = useState<string>(REQUEST_CONTEXT.customerTag);
+    // Real flow action for the selected brand; a hardcoded id only fits one brand.
+    const [actionId, setActionId] = useState<string>('');
 
     const [requestId, setRequestId] = useState<string | null>(null);
     const [psps, setPsps] = useState<PspInfo[]>([]);
-    const [excludedPsps, setExcludedPsps] = useState<ExcludedPsp[]>([]);
     const [selectedPspId, setSelectedPspId] = useState<string | null>(null);
     const [sessionUrl, setSessionUrl] = useState<string | null>(null);
     const [debouncePending, setDebouncePending] = useState(false);
@@ -75,8 +74,19 @@ export function DepositPage() {
     const fetchPsp = useFetchPsp();
     const createTransaction = useCreateTransaction();
 
-    // Bumped whenever a rule is saved in the CRM tab, so the PSP list stays in sync.
-    const { version: rulesVersion } = useRulesState();
+    const { flowActions, isLoading: loadingActions } = useFlowActions();
+
+    // Adopt a valid action whenever the brand's action list changes. In demo mode there is
+    // no API to ask, so the sample action id stands in.
+    useEffect(() => {
+        if (DEMO) {
+            setActionId(REQUEST_CONTEXT.actionId);
+            return;
+        }
+        if (flowActions.length === 0) return;
+        if (flowActions.some((action) => action.id === actionId)) return;
+        setActionId(pickDefaultDepositAction(flowActions)?.id ?? '');
+    }, [flowActions, actionId]);
 
     // Keep the selection valid. Preserve an already-valid choice; otherwise, if the
     // wallet's own currency is among the supported options, auto-select it. Fall back
@@ -111,7 +121,9 @@ export function DepositPage() {
         Boolean(import.meta.env.VITE_SECRET_TOKEN) ||
         import.meta.env.VITE_AUTH_VIA_PROXY === 'true' ||
         DEMO;
-    const canFetch = Boolean(wallet && currency && amountNum > 0 && convertedAmount > 0);
+    const canFetch = Boolean(
+        wallet && currency && amountNum > 0 && convertedAmount > 0 && actionId,
+    );
 
     // Auto-fetch PSPs whenever the wallet, currency, or (converted) amount changes.
     // Any input change clears the current PSP selection.
@@ -121,7 +133,6 @@ export function DepositPage() {
         if (!canFetch || !wallet) {
             setDebouncePending(false);
             setPsps([]);
-            setExcludedPsps([]);
             setRequestId(null);
             return;
         }
@@ -129,7 +140,7 @@ export function DepositPage() {
         const payload: FetchPspRequest = {
             amount: convertedAmount,
             currency,
-            actionId: REQUEST_CONTEXT.actionId,
+            actionId,
             country,
             customerId: REQUEST_CONTEXT.customerId,
             customerTag,
@@ -142,11 +153,9 @@ export function DepositPage() {
                 onSuccess: (res) => {
                     setRequestId(res.requestId);
                     setPsps(res.psps ?? []);
-                    setExcludedPsps(res.excludedPsps ?? []);
                 },
                 onError: () => {
                     setPsps([]);
-                    setExcludedPsps([]);
                     setRequestId(null);
                 },
                 onSettled: () => setDebouncePending(false),
@@ -154,9 +163,8 @@ export function DepositPage() {
         }, AUTO_FETCH_DEBOUNCE);
 
         return () => clearTimeout(timer);
-        // fetchPsp.mutate is stable; re-run only when the inputs change. rulesVersion makes
-        // the CP pick up a rule edited in the CRM tab without touching the form.
-    }, [walletId, currency, convertedAmount, country, customerTag, rulesVersion]);
+        // fetchPsp.mutate is stable; re-run only when the inputs change.
+    }, [walletId, currency, convertedAmount, country, customerTag, actionId]);
 
     // Only the Submit button triggers the transaction API.
     async function handleSubmit() {
@@ -170,7 +178,7 @@ export function DepositPage() {
         const payload: CreateTransactionRequest = {
             requestId,
             pspId: psp.id,
-            flowActionId: psp.flowActionId ?? REQUEST_CONTEXT.actionId,
+            flowActionId: psp.flowActionId ?? actionId,
             flowTargetId: psp.flowTarget?.flowTargetId,
             flowDefinitionId: psp.flowDefinitionId ?? psp.flowDefintionId,
             externalRequestId,
@@ -227,17 +235,50 @@ export function DepositPage() {
                 zIndex={1}
             >
                 <Flex align='flex-end' gap={3}>
+                    {!DEMO && (
+                        <Box minW='170px'>
+                            <Text fontWeight='medium' fontSize='xs' color='fg.muted' mb={1.5}>
+                                Flow action
+                            </Text>
+                            <chakra.select
+                                value={actionId}
+                                onChange={(e) => setActionId(e.target.value)}
+                                disabled={loadingActions || flowActions.length === 0}
+                                w='full'
+                                h='36px'
+                                px={2}
+                                borderWidth='1px'
+                                borderColor='border'
+                                borderRadius='md'
+                                bg='bg'
+                                cursor='pointer'
+                                fontSize='sm'
+                            >
+                                {flowActions.length === 0 && (
+                                    <option value=''>
+                                        {loadingActions ? 'Loading…' : 'No actions for this brand'}
+                                    </option>
+                                )}
+                                {flowActions.map((action) => (
+                                    <option key={action.id} value={action.id}>
+                                        {action.name}
+                                    </option>
+                                ))}
+                            </chakra.select>
+                        </Box>
+                    )}
+
                     <Box minW='150px'>
                         <Text fontWeight='medium' fontSize='xs' color='fg.muted' mb={1.5}>
                             Customer tag
                         </Text>
-                        <Select value={customerTag} onChange={(e) => setCustomerTag(e.target.value)}>
-                            {DEMO_CUSTOMER_TAGS.map((tag) => (
+                        <chakra.select value={customerTag} onChange={(e) => setCustomerTag(e.target.value)} w='full' h='36px' px={2} borderWidth='1px' borderColor='border' borderRadius='md' bg='bg' cursor='pointer' fontSize='sm'>
+                            {CUSTOMER_TAGS.map((tag) => (
                                 <option key={tag} value={tag}>
                                     {tag}
                                 </option>
                             ))}
-                        </Select>
+                        </chakra.select>
                     </Box>
 
                     <CountrySelector value={country} onChange={setCountry} />
@@ -323,7 +364,6 @@ export function DepositPage() {
                                 loading={loadingPsps}
                                 selectedPspId={selectedPspId}
                                 onSelect={(psp) => setSelectedPspId(psp.id)}
-                                excluded={excludedPsps}
                             />
 
                             {psps.length > 0 && (

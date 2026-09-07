@@ -6,6 +6,40 @@ export const API_ENDPOINTS = {
     psp: {
         // GET /psps/currencies -> supported currencies for the brand + environment
         currencies: () => '/psps/currencies',
+        // GET /psps/countries -> supported countries (distinct PSP operation countries)
+        countries: () => '/psps/countries',
+        // GET /psps -> configured PSPs for the brand + environment
+        configured: () => '/psps',
+        // GET /psps/{actionId}/ENABLED/{currency} -> enabled PSPs for an action + currency
+        byActionAndCurrency: (actionId: string, currency: string) =>
+            `/psps/${encodeURIComponent(actionId)}/ENABLED/${encodeURIComponent(currency)}`,
+    },
+    // CRM rule endpoints. All are in the brand service's `secret-token-paths`, so the
+    // same x-secret-token used by the deposit flow authorises them.
+    fees: {
+        list: () => '/fees',
+        create: () => '/fees',
+        byId: (id: number | string) => `/fees/${id}`,
+    },
+    transactionLimits: {
+        list: () => '/transaction-limits',
+        create: () => '/transaction-limits',
+        byId: (id: number | string) => `/transaction-limits/${id}`,
+    },
+    // Brand + environment lookups. Both are in the service's `no-brand-env-paths`, so
+    // they resolve without X-BRAND-ID / X-ENV-ID and can be used to pick one.
+    brands: {
+        list: () => '/brands',
+    },
+    environments: {
+        listByBrand: (brandId: string) => `/environments/brand/${encodeURIComponent(brandId)}`,
+    },
+    flowTypes: {
+        list: () => '/flow-types',
+    },
+    flowActions: {
+        listByFlowType: (flowTypeId: string) =>
+            `/flow-types/${encodeURIComponent(flowTypeId)}/flow-actions`,
     },
     requests: {
         // POST /requests/fetch-psp -> { requestId, psps[] }

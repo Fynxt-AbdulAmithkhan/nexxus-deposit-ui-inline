@@ -1,0 +1,248 @@
+{
+  "fees": {
+    "title": "Fees",
+    "subtitle": "Manage fee configurations",
+    "name": "Name",
+    "action": "Action",
+    "feeType": "Fee Type",
+    "currency": "Currency",
+    "countries": "Countries",
+    "moreCountries": "+{{count}} more countries",
+    "addFee": "Add Fee",
+    "updateFee": "Update Fee",
+    "loadingFees": "Loading fees...",
+    "failedToLoad": "Failed to load fees. Please try again.",
+    "inclusive": "INCLUSIVE",
+    "exclusive": "EXCLUSIVE",
+    "modals": {
+      "addFee": "Add Fees Structure",
+      "editFee": "Edit Fees Structure",
+      "loadingFee": "Loading fee...",
+      "loadingFormData": "Loading form data..."
+    },
+    "form": {
+      "basicInformation": "Basic Information",
+      "feeDetails": "Fee Details",
+      "pspConfiguration": "PSP Configuration",
+      "name": {
+        "label": "Name",
+        "placeholder": "Enter fee name"
+      },
+      "action": {
+        "label": "Rule Action",
+        "placeholder": "Select rule action",
+        "loading": "Loading actions...",
+        "error": "Failed to load flow actions"
+      },
+      "currency": {
+        "label": "Currency",
+        "placeholder": "Select currency",
+        "loading": "Loading currencies...",
+        "error": "Failed to load currencies"
+      },
+      "chargeFeeType": {
+        "label": "Fee Charge",
+        "placeholder": "Select fee charge"
+      },
+      "countries": {
+        "label": "Country",
+        "placeholder": "Select country",
+        "loading": "Loading countries...",
+        "error": "Failed to load countries"
+      },
+      "psps": {
+        "label": "Payment Service Providers",
+        "placeholder": "Select PSPs",
+        "loading": "Loading PSPs...",
+        "error": "Failed to load PSPs",
+        "selectActionAndCurrencyFirst": "Please select action and currency first"
+      },
+      "feeType": "Fee Type",
+      "selectType": "Select type",
+      "fee": "Fee",
+      "enterAmount": "Enter amount",
+      "minimumFee": "Minimum Fee",
+      "minValue": "Min value",
+      "maximumFee": "Maximum Fee",
+      "maxValue": "Max value",
+      "maxGreaterThanMin": "Max must be greater than Min",
+      "removeFee": "Remove fee",
+      "addFee": "+ Add Fee",
+      "tooltips": {
+        "name": "Enter a unique name for the fee",
+        "action": "Select the action type",
+        "currency": "Select the currency",
+        "chargeFeeType": "Select how the fee should be charged",
+        "countries": "Select countries where this fee applies",
+        "psps": "Select PSPs to apply this fee to"
+      }
+    },
+    "validation": {
+      "nameRequired": "Fee name is required",
+      "nameMaxLength": "Fee name must be less than 100 characters",
+      "actionRequired": "Flow action is required",
+      "currencyRequired": "Currency is required",
+      "chargeFeeTypeRequired": "Charge fee type is required",
+      "componentsRequired": "At least one fee component is required",
+      "componentsMaxLength": "Maximum 10 components allowed",
+      "countriesRequired": "At least one country must be selected",
+      "countriesMaxLength": "Maximum 50 countries allowed",
+      "pspsRequired": "At least one PSP must be selected",
+      "pspsMaxLength": "Maximum 20 PSPs allowed"
+    }
+  },
+  "transactionLimits": {
+    "title": "Transaction Limits",
+    "subtitle": "Manage transaction limits and restrictions",
+    "basicDetails": "Basic Details",
+    "limits": "Limits",
+    "psp": "PSP",
+    "name": "Name",
+    "currency": "Currency",
+    "country": "Country",
+    "countries": "Countries",
+    "psps": "PSPs",
+    "deposit": "Deposit",
+    "withdrawal": "Withdrawal",
+    "transfer": "Transfer",
+    "refund": "Refund",
+    "minAmount": "Min. Amount",
+    "maxAmount": "Max. Amount",
+    "createdOn": "Created On",
+    "noLimits": "No limits",
+    "moreCountries": "{{count}} more countries",
+    "addLimits": "Add Limits",
+    "editLimit": "Edit",
+    "deleteLimit": "Delete",
+    "loadingLimits": "Loading transaction limits...",
+    "errorLoadingLimits": "Error loading transaction limits",
+    "failedToLoadLimits": "Failed to fetch transaction limits",
+    "searchPlaceholder": "Search transaction limits by name",
+    "modals": {
+      "addTransactionLimit": "Add Transaction Limit",
+      "editTransactionLimit": "Edit Transaction Limit",
+      "deleteTransactionLimit": "Delete Transaction Limit",
+      "deleteConfirmation": "Are you sure you want to delete the transaction limit {{limitName}}? This action cannot be undone.",
+      "addRule": "Add Rule",
+      "updateRule": "Update Rule",
+      "loadingLimit": "Loading transaction limit...",
+      "loadingFormData": "Loading form data..."
+    },
+    "form": {
+      "name": {
+        "label": "Name",
+        "placeholder": "Enter name"
+      },
+      "currency": {
+        "label": "Currency",
+        "placeholder": "Select currency",
+        "loadingPlaceholder": "Loading currencies..."
+      },
+      "countries": {
+        "label": "Country",
+        "placeholder": "Select countries",
+        "loadingPlaceholder": "Loading countries..."
+      },
+      "tags": {
+        "label": "Tags",
+        "placeholder": "Select tags"
+      },
+      "psps": {
+        "label": "PSP",
+        "placeholder": "Select PSPs"
+      },
+      "amounts": {
+        "minLabel": "Minimum {{actionName}} amount",
+        "maxLabel": "Maximum {{actionName}} amount",
+        "minPlaceholder": "Enter minimum amount",
+        "maxPlaceholder": "Enter maximum amount"
+      },
+      "tooltips": {
+        "name": "A unique identifier for this transaction limit rule",
+        "currency": "Currency in which transaction limits will be applied",
+        "countries": "The countries where this transaction limit applies",
+        "psps": "The PSPs covered under this transaction limit",
+        "tags": "Categorize this limit for better organization and filtering",
+        "depositMin": "Minimum deposit amount allowed per transaction",
+        "depositMax": "Maximum deposit amount allowed per transaction",
+        "withdrawMin": "Minimum withdrawal amount allowed per transaction",
+        "withdrawMax": "Maximum withdrawal amount allowed per transaction",
+        "transferMin": "Minimum transfer amount allowed per transaction",
+        "transferMax": "Maximum transfer amount allowed per transaction",
+        "refundMin": "Minimum refund amount allowed per transaction",
+        "refundMax": "Maximum refund amount allowed per transaction"
+      }
+    },
+    "validation": {
+      "nameRequired": "Name is required",
+      "nameMaxLength": "Name must be less than 100 characters",
+      "currencyRequired": "Currency is required",
+      "countriesRequired": "At least one country must be selected",
+      "tagsRequired": "At least one tag must be selected",
+      "pspsRequired": "At least one PSP must be selected",
+      "minAmountRequired": "Minimum {{actionName}} amount is required and must be greater than 0",
+      "maxAmountRequired": "Maximum {{actionName}} amount is required and must be greater than 0",
+      "minAmountPositive": "Minimum {{actionName}} amount must be positive",
+      "maxAmountPositive": "Maximum {{actionName}} amount must be positive",
+      "minMaxValidation": "Minimum amount must be less than or equal to maximum amount",
+      "minMaxEqualValidation": "Minimum and maximum {{actionName}} amounts cannot be equal"
+    },
+    "tags": {
+      "banned": "Banned",
+      "vip": "VIP",
+      "important": "Important",
+      "premium": "Premium",
+      "standard": "Standard",
+      "newCustomer": "New Customer"
+    }
+  },
+  "common": {
+    "back": "Back",
+    "cancel": "Cancel",
+    "save": "Save",
+    "saveChanges": "Save Changes",
+    "loading": "Loading...",
+    "saving": "Saving...",
+    "creating": "Creating...",
+    "updating": "Updating...",
+    "retry": "Retry",
+    "refresh": "Refresh",
+    "edit": "Edit",
+    "delete": "Delete",
+    "add": "Add",
+    "clear": "Clear",
+    "enable": "Enable",
+    "disable": "Disable",
+    "enabling": "Enabling...",
+    "disabling": "Disabling...",
+    "confirm": "Confirm",
+    "leave": "Leave",
+    "close": "Close",
+    "copy": "Copy",
+    "profile": "Profile",
+    "settings": "Settings",
+    "logout": "Logout",
+    "notification": "Notification",
+    "language": "Language",
+    "openMenu": "Open menu",
+    "logo": "NEXUS Logo",
+    "toggleVisibility": "Toggle visibility",
+    "validation": {
+      "required": "This field is required",
+      "email": "Please enter a valid email address",
+      "url": "Please enter a valid URL",
+      "phoneNumber": "Please enter a valid phone number",
+      "positiveNumber": "Must be a positive number",
+      "nonNegativeNumber": "Must be a non-negative number",
+      "minLength": "Must be at least {{min}} characters",
+      "maxLength": "Must be no more than {{max}} characters",
+      "requiredArray": "At least one item must be selected",
+      "currency": "Please select a valid currency",
+      "country": "Please select at least one country"
+    },
+    "or": "OR"
+  },
+  "formatters": {
+    "moreCountries": "+{{count}} more"
+  }
+}

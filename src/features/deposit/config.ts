@@ -38,6 +38,12 @@ export const CUSTOMER_PROFILE = {
     language: 'en',
 } as const;
 
+/**
+ * Customer tags a transaction limit can be scoped to. Selectable in the CP header so the
+ * tag dimension of a limit's scope can be exercised against the real API.
+ */
+export const CUSTOMER_TAGS = ['VIP', 'Important', 'Premium', 'Standard', 'New Customer', 'Banned'];
+
 /** The single payment method surfaced once a wallet is chosen. */
 export const NEXXUS_METHOD = {
     id: 'nexxus',

@@ -48,32 +48,44 @@ pnpm dev        # http://localhost:5176
 pnpm build      # typecheck + production build
 ```
 
-## Demo CRM + CP harness
+## CRM + CP in one app
 
-With `VITE_DEMO=true` the app runs as a self-contained stand-in for both sides of the
-product, so fee and transaction-limit behaviour can be exercised without a backend:
+The app has two tabs, both talking to the real brand service — there is no local rule
+engine and nothing is simulated, so what you see is whatever the deployed backend does.
 
-```bash
-VITE_DEMO=true pnpm dev
-```
+- **CRM tab** — a stand-in for CRM > Payment > Transaction Rule, built from the CRM's own
+  `DataTable`, `Modal`, `Tabs` and rule forms so it matches the real screens. Reads and
+  writes real fee rules and transaction limits (`/fees`, `/transaction-limits`, both in
+  the service's `secret-token-paths`, so the environment secret token authorises them).
+- **Client Portal tab** — the deposit flow. Each PSP card shows the fee breakdown the API
+  returned, including an explicit "no fee applied" state, which is what makes the
+  country/currency scoping of a rule observable.
 
-- **CRM tab** — a stand-in for CRM > Payment > Transaction Rule. Author fee rules
-  (charge type, currency, countries, PSPs, percentage/fixed components) and transaction
-  limits (currency, countries, customer tags, PSPs, min/max band). Saved to
-  `localStorage`, so a scenario survives a reload.
-- **Client Portal tab** — the deposit flow, evaluating whatever the CRM tab holds. Each
-  PSP card shows the fee breakdown and which rules were applied or skipped; PSPs removed
-  by a limit are listed with the reason.
-- **Behaviour toggle** — `fixed` applies the corrected scoping (a rule outside its
-  configured country, currency or tag scope is skipped, and only the amount can reject a
-  transaction). `legacy` reproduces the shipped defect (NEX-98223): fees ignore their
-  countries, and an out-of-scope limit removes the PSP outright. Flipping it shows the
-  before/after without deploying anything.
+Create a rule in the CRM tab, deposit in the CP tab, and the outcome is the backend's
+answer. That is the point: a fix is verified by deploying it, not by a switch here.
 
-The engine in [`src/features/rules/engine.ts`](src/features/rules/engine.ts) mirrors
-`FeeCalculationService` and `TransactionLimitFilterStrategy`. It is a demo model, not the
-real thing — to verify the deployed backend, leave `VITE_DEMO` unset and point
-`VITE_API_TARGET` at the environment you want to test.
+### Pointing at a brand
+
+The secret token resolves one brand and environment, so by default every call runs on
+*that* brand — which is why the rules shown will not match another brand's rules in the
+real CRM. The header brand/environment selector sends `X-BRAND-ID` / `X-ENV-ID`, which
+the service prefers over the token's own context.
+
+This works under `pnpm dev` (Vite forwards the headers). A **deployed** build's proxy
+strips them unless `ALLOW_BRAND_OVERRIDE=true` is set server-side — deliberately, since
+`x-secret-token` bypasses the permission check, so forwarding them unconditionally would
+let any visitor read every brand the token can reach. See `server.js` / `api/proxy.js`.
+
+The deposit flow's `actionId` is also read from the API (flow types -> flow actions) per
+brand; a hardcoded action id only ever fits the brand it came from.
+
+### VITE_DEMO
+
+`VITE_DEMO=true` builds a UI-only preview with sample PSPs (used by the GitHub Pages
+workflow). The CRM tab needs the live API, so in that mode it says so and the brand
+selector is hidden. Sample wallets, balances, FX rates and the customer profile in
+[`config.ts`](src/features/deposit/config.ts) are always local — the brand service has no
+endpoint for them.
 
 ## Structure
 
@@ -91,11 +103,19 @@ src/
     components/            wallet selector, Nexxus card, side panel,
                            deposit form, PSP list/card, payment iframe
     deposit-page.tsx       flow orchestrator (state machine)
-  features/rules/          demo CRM (VITE_DEMO only)
-    types.ts               rule model mirroring the brand-service DTOs
-    defaults.ts            PSP catalogue + seed rules covering the 98223 cases
-    engine.ts              fee + transaction-limit evaluation (fixed vs legacy)
-    store.ts               localStorage-backed config shared with the CP tab
-    components/            rule editors + form primitives
-    crm-page.tsx           rule lists + behaviour toggle
+  features/crm/            CRM rule screens, copied from the CRM frontend
+    fee/                   fees list + modal form
+    transaction-limits/    limits list + modal form
+    crm-page.tsx           PageHeader + tabs
+  features/brand-env/      brand + environment selector
+  components/ui/           CRM DataTable, Modal, Tabs, PageHeader, formatters
+  components/forms/        CRM form inputs (input, select, multi-select, ...)
+  hooks/                   brand/environment, flow types + actions, common form
+  api/services/            fee, transaction-limit, psp, flow, brand services
+  locales/en.json          translation subset the copied screens need
 ```
+
+The CRM components under `components/`, `hooks/use-common-form.ts` and `features/crm/`
+are copies of the nexxus CRM frontend, adapted only where they were coupled to its auth
+store or its FontAwesome kit (`components/ui/Icon` is mapped onto lucide). They will drift
+from the real CRM over time; the real CRM is the source of truth.
