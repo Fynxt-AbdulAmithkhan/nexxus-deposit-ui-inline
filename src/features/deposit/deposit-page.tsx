@@ -10,10 +10,13 @@ import { WalletSelector } from './components/wallet-selector';
 import { useCreateTransaction } from './hooks/use-create-transaction';
 import { useCurrencies } from './hooks/use-currencies';
 import { useFetchPsp } from './hooks/use-fetch-psp';
-import type { CreateTransactionRequest, FetchPspRequest, PspInfo } from './types';
+import type { CreateTransactionRequest, ExcludedPsp, FetchPspRequest, PspInfo } from './types';
 import { convert, getRate } from './utils/conversion';
 import { applyWidgetOrigin } from './utils/widget-origin';
 import { DEMO } from './demo';
+import { DEMO_CUSTOMER_TAGS } from '../rules/defaults';
+import { useRulesState } from '../rules/store';
+import { Select } from '../rules/components/primitives';
 
 /** Debounce (ms) before an amount/currency change triggers a fetch-psp call. */
 const AUTO_FETCH_DEBOUNCE = 500;
@@ -57,9 +60,11 @@ export function DepositPage() {
     const [amount, setAmount] = useState('');
     const [currency, setCurrency] = useState('');
     const [country, setCountry] = useState<string>(REQUEST_CONTEXT.country);
+    const [customerTag, setCustomerTag] = useState<string>(REQUEST_CONTEXT.customerTag);
 
     const [requestId, setRequestId] = useState<string | null>(null);
     const [psps, setPsps] = useState<PspInfo[]>([]);
+    const [excludedPsps, setExcludedPsps] = useState<ExcludedPsp[]>([]);
     const [selectedPspId, setSelectedPspId] = useState<string | null>(null);
     const [sessionUrl, setSessionUrl] = useState<string | null>(null);
     const [debouncePending, setDebouncePending] = useState(false);
@@ -69,6 +74,9 @@ export function DepositPage() {
 
     const fetchPsp = useFetchPsp();
     const createTransaction = useCreateTransaction();
+
+    // Bumped whenever a rule is saved in the CRM tab, so the PSP list stays in sync.
+    const { version: rulesVersion } = useRulesState();
 
     // Keep the selection valid. Preserve an already-valid choice; otherwise, if the
     // wallet's own currency is among the supported options, auto-select it. Fall back
@@ -113,6 +121,7 @@ export function DepositPage() {
         if (!canFetch || !wallet) {
             setDebouncePending(false);
             setPsps([]);
+            setExcludedPsps([]);
             setRequestId(null);
             return;
         }
@@ -123,7 +132,7 @@ export function DepositPage() {
             actionId: REQUEST_CONTEXT.actionId,
             country,
             customerId: REQUEST_CONTEXT.customerId,
-            customerTag: REQUEST_CONTEXT.customerTag,
+            customerTag,
             customerAccountType: REQUEST_CONTEXT.customerAccountType,
         };
 
@@ -133,9 +142,11 @@ export function DepositPage() {
                 onSuccess: (res) => {
                     setRequestId(res.requestId);
                     setPsps(res.psps ?? []);
+                    setExcludedPsps(res.excludedPsps ?? []);
                 },
                 onError: () => {
                     setPsps([]);
+                    setExcludedPsps([]);
                     setRequestId(null);
                 },
                 onSettled: () => setDebouncePending(false),
@@ -143,8 +154,9 @@ export function DepositPage() {
         }, AUTO_FETCH_DEBOUNCE);
 
         return () => clearTimeout(timer);
-        // fetchPsp.mutate is stable; re-run only when the inputs change.
-    }, [walletId, currency, convertedAmount, country]);
+        // fetchPsp.mutate is stable; re-run only when the inputs change. rulesVersion makes
+        // the CP pick up a rule edited in the CRM tab without touching the form.
+    }, [walletId, currency, convertedAmount, country, customerTag, rulesVersion]);
 
     // Only the Submit button triggers the transaction API.
     async function handleSubmit() {
@@ -214,7 +226,22 @@ export function DepositPage() {
                 right={{ base: 4, md: 6 }}
                 zIndex={1}
             >
-                <CountrySelector value={country} onChange={setCountry} />
+                <Flex align='flex-end' gap={3}>
+                    <Box minW='150px'>
+                        <Text fontWeight='medium' fontSize='xs' color='fg.muted' mb={1.5}>
+                            Customer tag
+                        </Text>
+                        <Select value={customerTag} onChange={(e) => setCustomerTag(e.target.value)}>
+                            {DEMO_CUSTOMER_TAGS.map((tag) => (
+                                <option key={tag} value={tag}>
+                                    {tag}
+                                </option>
+                            ))}
+                        </Select>
+                    </Box>
+
+                    <CountrySelector value={country} onChange={setCountry} />
+                </Flex>
             </Box>
 
             <Flex minH='100vh' direction='column' align='center' py={{ base: 6, md: 12 }} px={4}>
@@ -296,6 +323,7 @@ export function DepositPage() {
                                 loading={loadingPsps}
                                 selectedPspId={selectedPspId}
                                 onSelect={(psp) => setSelectedPspId(psp.id)}
+                                excluded={excludedPsps}
                             />
 
                             {psps.length > 0 && (

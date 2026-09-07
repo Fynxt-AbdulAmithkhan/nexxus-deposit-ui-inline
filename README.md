@@ -44,9 +44,36 @@ your brand's real values.
 
 ```bash
 pnpm install
-pnpm dev        # http://localhost:5174
+pnpm dev        # http://localhost:5176
 pnpm build      # typecheck + production build
 ```
+
+## Demo CRM + CP harness
+
+With `VITE_DEMO=true` the app runs as a self-contained stand-in for both sides of the
+product, so fee and transaction-limit behaviour can be exercised without a backend:
+
+```bash
+VITE_DEMO=true pnpm dev
+```
+
+- **CRM tab** — a stand-in for CRM > Payment > Transaction Rule. Author fee rules
+  (charge type, currency, countries, PSPs, percentage/fixed components) and transaction
+  limits (currency, countries, customer tags, PSPs, min/max band). Saved to
+  `localStorage`, so a scenario survives a reload.
+- **Client Portal tab** — the deposit flow, evaluating whatever the CRM tab holds. Each
+  PSP card shows the fee breakdown and which rules were applied or skipped; PSPs removed
+  by a limit are listed with the reason.
+- **Behaviour toggle** — `fixed` applies the corrected scoping (a rule outside its
+  configured country, currency or tag scope is skipped, and only the amount can reject a
+  transaction). `legacy` reproduces the shipped defect (NEX-98223): fees ignore their
+  countries, and an out-of-scope limit removes the PSP outright. Flipping it shows the
+  before/after without deploying anything.
+
+The engine in [`src/features/rules/engine.ts`](src/features/rules/engine.ts) mirrors
+`FeeCalculationService` and `TransactionLimitFilterStrategy`. It is a demo model, not the
+real thing — to verify the deployed backend, leave `VITE_DEMO` unset and point
+`VITE_API_TARGET` at the environment you want to test.
 
 ## Structure
 
@@ -64,4 +91,11 @@ src/
     components/            wallet selector, Nexxus card, side panel,
                            deposit form, PSP list/card, payment iframe
     deposit-page.tsx       flow orchestrator (state machine)
+  features/rules/          demo CRM (VITE_DEMO only)
+    types.ts               rule model mirroring the brand-service DTOs
+    defaults.ts            PSP catalogue + seed rules covering the 98223 cases
+    engine.ts              fee + transaction-limit evaluation (fixed vs legacy)
+    store.ts               localStorage-backed config shared with the CP tab
+    components/            rule editors + form primitives
+    crm-page.tsx           rule lists + behaviour toggle
 ```

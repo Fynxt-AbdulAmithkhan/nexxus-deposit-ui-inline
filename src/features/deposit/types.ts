@@ -34,6 +34,21 @@ export interface FlowTargetData {
     inputSchema?: string;
 }
 
+/**
+ * Configured rates behind one charge type (RequestOutputDto.FeeBreakdown).
+ * Percentages are already clamped by the rule's min/max, so they match the charged amount.
+ */
+export interface FeeBreakdown {
+    feePercentage?: number;
+    fixedFee?: number;
+}
+
+/** RequestOutputDto.FeeDetails — omitted entirely when no fee applied. */
+export interface FeeDetails {
+    inclusiveFee?: FeeBreakdown;
+    exclusiveFee?: FeeBreakdown;
+}
+
 /** One entry of RequestOutputDto.psps. */
 export interface PspInfo {
     id: string;
@@ -55,13 +70,31 @@ export interface PspInfo {
     exclusiveFeeAmount?: number;
     /** Wire field is `feeApplied` (Lombok/Jackson drops the `is` prefix). */
     feeApplied?: boolean;
+    /** Rate breakdown for the fees that applied; absent when none did. */
+    fee?: FeeDetails;
     flowTarget?: FlowTargetData;
+    /** Demo harness only: fee rules that were charged. Not returned by the real API. */
+    appliedRuleNames?: string[];
+    /** Demo harness only: fee rules skipped because the country is out of scope. */
+    skippedForCountryNames?: string[];
+}
+
+/** Demo harness only: a PSP the transaction-limit filter removed, and why. */
+export interface ExcludedPsp {
+    id: string;
+    name: string;
+    reason: string;
 }
 
 /** RequestOutputDto. */
 export interface FetchPspResponse {
     requestId: string;
     psps: PspInfo[];
+    /**
+     * Demo harness only. The real API just omits PSPs that were filtered out; the harness
+     * reports them so the transaction-limit model is observable.
+     */
+    excludedPsps?: ExcludedPsp[];
 }
 
 /** Body for POST /transactions (TransactionDto). */

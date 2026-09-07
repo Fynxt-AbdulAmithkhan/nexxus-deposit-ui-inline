@@ -2,6 +2,7 @@ import { Box, Flex, Image, Text } from '@chakra-ui/react';
 import { ImageOff } from 'lucide-react';
 import { useState } from 'react';
 import type { PspInfo } from '../types';
+import { PspFeeSummary } from './psp-fee-summary';
 
 type Props = {
     psp: PspInfo;
@@ -10,7 +11,10 @@ type Props = {
     disabled?: boolean;
 };
 
-/** Radio-style payment-method card: a radio dot on the left, the PSP logo on the right. */
+/**
+ * Radio-style payment-method card: a radio dot on the left, the PSP logo on the right,
+ * and the server-calculated fee breakdown underneath.
+ */
 export function PspCard({ psp, selected, onSelect, disabled }: Props) {
     const [logoOk, setLogoOk] = useState(Boolean(psp.logo));
 
@@ -27,8 +31,8 @@ export function PspCard({ psp, selected, onSelect, disabled }: Props) {
                 }
             }}
             display='flex'
-            alignItems='center'
-            gap={3}
+            flexDirection='column'
+            alignItems='stretch'
             borderWidth='2px'
             borderColor={selected ? 'brand.solid' : 'border'}
             bg='bg'
@@ -41,38 +45,42 @@ export function PspCard({ psp, selected, onSelect, disabled }: Props) {
             transition='all 0.15s'
             _hover={disabled ? undefined : { borderColor: 'brand.solid' }}
         >
-            {/* radio indicator */}
-            <Flex
-                align='center'
-                justify='center'
-                boxSize='20px'
-                borderRadius='full'
-                borderWidth='2px'
-                borderColor={selected ? 'brand.solid' : 'border.muted'}
-                flexShrink={0}
-            >
-                {selected && <Box boxSize='10px' borderRadius='full' bg='brand.solid' />}
+            <Flex align='center' gap={3}>
+                {/* radio indicator */}
+                <Flex
+                    align='center'
+                    justify='center'
+                    boxSize='20px'
+                    borderRadius='full'
+                    borderWidth='2px'
+                    borderColor={selected ? 'brand.solid' : 'border.muted'}
+                    flexShrink={0}
+                >
+                    {selected && <Box boxSize='10px' borderRadius='full' bg='brand.solid' />}
+                </Flex>
+
+                {/* logo (falls back to name, then a placeholder icon) */}
+                <Flex flex={1} align='center' justify='center' minH='32px' color='fg.subtle'>
+                    {logoOk && psp.logo ? (
+                        <Image
+                            src={psp.logo}
+                            alt={psp.name}
+                            maxH='34px'
+                            maxW='150px'
+                            objectFit='contain'
+                            onError={() => setLogoOk(false)}
+                        />
+                    ) : psp.name ? (
+                        <Text fontWeight='semibold' color='fg'>
+                            {psp.name}
+                        </Text>
+                    ) : (
+                        <ImageOff size={22} />
+                    )}
+                </Flex>
             </Flex>
 
-            {/* logo (falls back to name, then a placeholder icon) */}
-            <Flex flex={1} align='center' justify='center' minH='32px' color='fg.subtle'>
-                {logoOk && psp.logo ? (
-                    <Image
-                        src={psp.logo}
-                        alt={psp.name}
-                        maxH='34px'
-                        maxW='150px'
-                        objectFit='contain'
-                        onError={() => setLogoOk(false)}
-                    />
-                ) : psp.name ? (
-                    <Text fontWeight='semibold' color='fg'>
-                        {psp.name}
-                    </Text>
-                ) : (
-                    <ImageOff size={22} />
-                )}
-            </Flex>
+            <PspFeeSummary psp={psp} />
         </Box>
     );
 }

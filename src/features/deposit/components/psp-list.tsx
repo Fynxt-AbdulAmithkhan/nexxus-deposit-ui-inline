@@ -1,6 +1,6 @@
-import { Flex, SimpleGrid, Spinner, Text, VStack } from '@chakra-ui/react';
-import { PackageOpen } from 'lucide-react';
-import type { PspInfo } from '../types';
+import { Box, Flex, SimpleGrid, Spinner, Text, VStack } from '@chakra-ui/react';
+import { Ban, PackageOpen } from 'lucide-react';
+import type { ExcludedPsp, PspInfo } from '../types';
 import { PspCard } from './psp-card';
 
 type Props = {
@@ -8,9 +8,53 @@ type Props = {
     loading: boolean;
     selectedPspId: string | null;
     onSelect: (psp: PspInfo) => void;
+    /** Demo harness only: PSPs the transaction-limit filter removed. */
+    excluded?: ExcludedPsp[];
 };
 
-export function PspList({ psps, loading, selectedPspId, onSelect }: Props) {
+/**
+ * Providers removed by the transaction-limit filter. The real API simply omits them; the
+ * harness lists them with the cause, because "the PSP vanished" is the only symptom the
+ * limit model produces and it is otherwise invisible.
+ */
+function ExcludedList({ excluded }: { excluded: ExcludedPsp[] }) {
+    return (
+        <Box mt={4}>
+            <Flex align='center' gap={1.5} mb={2}>
+                <Box color='fg.subtle'>
+                    <Ban size={13} />
+                </Box>
+                <Text fontSize='xs' color='fg.muted'>
+                    Filtered out by transaction limits
+                </Text>
+            </Flex>
+
+            <VStack align='stretch' gap={1.5}>
+                {excluded.map((psp) => (
+                    <Box
+                        key={psp.id}
+                        borderWidth='1px'
+                        borderColor='border'
+                        borderStyle='dashed'
+                        borderRadius='md'
+                        px={3}
+                        py={2}
+                        bg='bg.muted'
+                    >
+                        <Text fontSize='sm' fontWeight='medium' color='fg.muted'>
+                            {psp.name}
+                        </Text>
+                        <Text fontSize='xs' color='fg.subtle'>
+                            {psp.reason}
+                        </Text>
+                    </Box>
+                ))}
+            </VStack>
+        </Box>
+    );
+}
+
+export function PspList({ psps, loading, selectedPspId, onSelect, excluded }: Props) {
     if (loading) {
         return (
             <Flex direction='column' align='center' justify='center' py={12} gap={3}>
@@ -22,14 +66,19 @@ export function PspList({ psps, loading, selectedPspId, onSelect }: Props) {
         );
     }
 
+    const hasExcluded = Boolean(excluded && excluded.length > 0);
+
     if (psps.length === 0) {
         return (
-            <Flex direction='column' align='center' justify='center' py={12} gap={3} textAlign='center'>
-                <PackageOpen size={32} />
-                <Text fontSize='sm' color='fg.muted'>
-                    No payment providers available for this amount and currency.
-                </Text>
-            </Flex>
+            <Box>
+                <Flex direction='column' align='center' justify='center' py={10} gap={3} textAlign='center'>
+                    <PackageOpen size={32} />
+                    <Text fontSize='sm' color='fg.muted'>
+                        No payment providers available for this amount and currency.
+                    </Text>
+                </Flex>
+                {hasExcluded && <ExcludedList excluded={excluded ?? []} />}
+            </Box>
         );
     }
 
@@ -48,6 +97,7 @@ export function PspList({ psps, loading, selectedPspId, onSelect }: Props) {
                     />
                 ))}
             </SimpleGrid>
+            {hasExcluded && <ExcludedList excluded={excluded ?? []} />}
         </VStack>
     );
 }
